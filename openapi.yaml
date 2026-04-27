@@ -1,0 +1,219 @@
+openapi: 3.0.3
+info:
+  title: CircleSave API
+  description: Digital ROSCA (Құты) Platform
+  version: 1.0.0
+
+servers:
+  - url: http://localhost:3000/v1
+    description: Local Development
+
+security:
+  - BearerAuth: []
+
+paths:
+  /auth/register:
+    post:
+      summary: Register new user
+      tags: [Authentication]
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterRequest'
+      responses:
+        "201":
+          description: User registered
+        "409":
+          description: Phone already registered
+        "422":
+          description: Validation error
+
+  /auth/login:
+    post:
+      summary: Login
+      tags: [Authentication]
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [phone, password]
+              properties:
+                phone:
+                  type: string
+                password:
+                  type: string
+      responses:
+        "200":
+          description: Login successful
+        "401":
+          description: Invalid credentials
+
+  /auth/refresh:
+    post:
+      summary: Refresh token
+      tags: [Authentication]
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [refreshToken]
+              properties:
+                refreshToken:
+                  type: string
+      responses:
+        "200":
+          description: New tokens issued
+        "401":
+          description: Invalid refresh token
+
+  /auth/logout:
+    post:
+      summary: Logout
+      tags: [Authentication]
+      responses:
+        "200":
+          description: Logged out
+
+  /circles:
+    get:
+      summary: List circles
+      tags: [Circles]
+      parameters:
+        - name: cursor
+          in: query
+          schema:
+            type: string
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+        - name: status
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: List of circles
+    post:
+      summary: Create circle
+      tags: [Circles]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateCircleRequest'
+      responses:
+        "201":
+          description: Circle created
+        "400":
+          description: Validation error
+
+  /circles/{circleId}:
+    get:
+      summary: Get circle
+      tags: [Circles]
+      parameters:
+        - name: circleId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Circle details
+        "404":
+          description: Not found
+
+  /circles/{circleId}/join:
+    post:
+      summary: Join circle
+      tags: [Circles]
+      parameters:
+        - name: circleId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "201":
+          description: Joined
+        "403":
+          description: Not forming or trust score low
+        "409":
+          description: Already member
+
+  /circles/{circleId}/ledger:
+    get:
+      summary: Get ledger
+      tags: [Ledger]
+      parameters:
+        - name: circleId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Ledger entries
+
+  /circles/{circleId}/balance:
+    get:
+      summary: Get balance
+      tags: [Ledger]
+      parameters:
+        - name: circleId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Balance
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    RegisterRequest:
+      type: object
+      required: [phone, password]
+      properties:
+        phone:
+          type: string
+          example: "+77001234567"
+        password:
+          type: string
+          minLength: 8
+
+    CreateCircleRequest:
+      type: object
+      required: [name, contributionAmount, memberCount, startDate]
+      properties:
+        name:
+          type: string
+        contributionAmount:
+          type: number
+          minimum: 5000
+          maximum: 500000
+        memberCount:
+          type: integer
+          minimum: 3
+          maximum: 20
+        startDate:
+          type: string
+          format: date-time

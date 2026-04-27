@@ -1,0 +1,168 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  MEMBER
+  ORGANIZER
+  ADMIN
+}
+
+enum CircleStatus {
+  FORMING
+  ACTIVE
+  RUNNING
+  COMPLETED
+  FROZEN
+}
+
+enum MembershipStatus {
+  PENDING
+  ACTIVE
+  SUSPENDED
+  DEFAULTED
+  EXITED
+}
+
+enum PaymentStatus {
+  UNPAID
+  PARTIAL_50
+  PARTIAL_70
+  PAID
+  DEFAULTED
+  RECONCILED
+}
+
+enum LedgerAccount {
+  MEMBER_RECEIVABLE
+  CIRCLE_POT
+  LATE_FEE_INCOME
+  ORGANIZER_PAYABLE
+  BANK_COMMISSION
+}
+
+enum LedgerType {
+  DEBIT
+  CREDIT
+}
+
+model User {
+  id            String   @id @default(uuid())
+  phone         String   @unique
+  passwordHash  String
+  firstName     String?
+  lastName      String?
+  
+  trustScore    Decimal  @default(0.5) @db.Decimal(3,2)
+  verifiedPhone Boolean  @default(false)
+  verifiedId    Boolean  @default(false)
+  
+  role          UserRole @default(MEMBER)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  
+  memberships      CircleMembership[]
+  ledgerEntries    LedgerEntry[]
+  payments         Payment[]
+  organizedCircles Circle[] @relation("Organizer")
+  
+  @@index([phone])
+  @@index([trustScore])
+  @@map("users")
+}
+
+model Circle {
+  id                 String       @id @default(uuid())
+  name               String
+  contributionAmount Decimal      @db.Decimal(12,2)
+  memberCount        Int
+  status             CircleStatus @default(FORMING)
+  
+  startDate          DateTime?
+  cycleLengthDays    Int          @default(30)
+  
+  organizerId        String
+  organizer          User         @relation("Organizer", fields: [organizerId], references: [id])
+  memberships        CircleMembership[]
+  ledgerEntries      LedgerEntry[]
+  payments           Payment[]
+  
+  @@index([status])
+  @@index([organizerId])
+  @@map("circles")
+}
+
+model CircleMembership {
+  id                 String           @id @default(uuid())
+  circleId           String
+  userId             String
+  positionInRotation Int
+  status             MembershipStatus @default(PENDING)
+  
+  joinedAt           DateTime         @default(now())
+  exitedAt           DateTime?
+  
+  circle             Circle           @relation(fields: [circleId], references: [id])
+  user               User             @relation(fields: [userId], references: [id])
+  
+  @@unique([circleId, userId])
+  @@index([circleId, positionInRotation])
+  @@index([userId, status])
+  @@map("circle_memberships")
+}
+
+model LedgerEntry {
+  id              String      @id @default(uuid())
+  transactionId   String
+  circleId        String
+  userId          String?
+  
+  entryType       LedgerType
+  account         LedgerAccount
+  amount          Decimal     @db.Decimal(12,2)
+  currency        String      @default("KZT")
+  
+  description     String?
+  idempotencyKey  String      @unique
+  
+  createdAt       DateTime    @default(now())
+  
+  circle          Circle      @relation(fields: [circleId], references: [id])
+  user            User?       @relation(fields: [userId], references: [id])
+  
+  @@index([transactionId])
+  @@index([circleId, account, createdAt])
+  @@index([userId, createdAt])
+  @@index([idempotencyKey])
+  @@map("ledger_entries")
+}
+
+model Payment {
+  id              String        @id @default(uuid())
+  circleId        String
+  userId          String
+  cycleNumber     Int
+  
+  amountDue       Decimal       @db.Decimal(12,2)
+  amountPaid      Decimal       @default(0) @db.Decimal(12,2)
+  lateFeeAccrued  Decimal       @default(0) @db.Decimal(12,2)
+  
+  status          PaymentStatus @default(UNPAID)
+  dueDate         DateTime
+  paidAt          DateTime?
+  
+  idempotencyKey  String        @unique
+  
+  circle          Circle        @relation(fields: [circleId], references: [id])
+  user            User          @relation(fields: [userId], references: [id])
+  
+  @@unique([circleId, userId, cycleNumber])
+  @@index([status, dueDate])
+  @@index([circleId, cycleNumber])
+  @@map("payments")
+}
