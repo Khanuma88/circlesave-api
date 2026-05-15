@@ -40,6 +40,15 @@ const createCircleSchema = z.object({
   cycleLengthDays: z.number().int().default(30),
 });
 
+const makePaymentSchema = z.object({
+  cycleNumber: z.number().int().positive(),
+  amount: z.number().positive(),
+});
+
+const calculatePayoutSchema = z.object({
+  cycleNumber: z.number().int().positive(),
+});
+
 module.exports = {
   registerSchema,
   loginSchema,
@@ -48,4 +57,6 @@ module.exports = {
   forgotPasswordSchema,
   resetPasswordSchema,
   createCircleSchema,
+  makePaymentSchema,
+  calculatePayoutSchema,
 };

@@ -3,6 +3,7 @@ const { env } = require('./config/env');
 const { logger } = require('./config/logger');
 const { prisma } = require('./config/database');
 const { redis } = require('./config/redis');
+const { schedulePaymentJobs } = require('./jobs/payment.cron');
 
 const startServer = async () => {
   try {
@@ -11,6 +12,8 @@ const startServer = async () => {
 
     await redis.ping();
     logger.info('Redis connected');
+
+    await schedulePaymentJobs();
 
     const server = app.listen(env.PORT, () => {
       logger.info(`Server running on port ${env.PORT}`);

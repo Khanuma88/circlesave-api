@@ -1,11 +1,11 @@
 openapi: 3.0.3
 info:
   title: CircleSave API
-  description: Digital ROSCA (Құты) Platform
+  description: Digital ROSCA (Құты) Platform - Automated rotating savings circles
   version: 1.0.0
 
 servers:
-  - url: http://localhost:3000/v1
+  - url: http://localhost:3001/v1
     description: Local Development
 
 security:
@@ -23,17 +23,51 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/RegisterRequest'
+            example:
+              phone: "+77001234567"
+              email: "user@example.com"
+              password: "SecurePass123!"
+              firstName: "Aisha"
+              lastName: "Ivanova"
       responses:
         "201":
-          description: User registered
+          description: User registered, verification email sent
         "409":
-          description: Phone already registered
+          description: Phone or email already registered
         "422":
           description: Validation error
 
+  /auth/verify-email:
+    post:
+      summary: Verify email with code
+      tags: [Authentication]
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, code]
+              properties:
+                email:
+                  type: string
+                code:
+                  type: string
+                  minLength: 6
+                  maxLength: 6
+            example:
+              email: "user@example.com"
+              code: "123456"
+      responses:
+        "200":
+          description: Email verified successfully
+        "400":
+          description: Invalid or expired code
+
   /auth/login:
     post:
-      summary: Login
+      summary: Login with phone and password
       tags: [Authentication]
       security: []
       requestBody:
@@ -48,15 +82,70 @@ paths:
                   type: string
                 password:
                   type: string
+            example:
+              phone: "+77001234567"
+              password: "SecurePass123!"
       responses:
         "200":
-          description: Login successful
+          description: Login successful, returns tokens
         "401":
           description: Invalid credentials
+        "403":
+          description: Email not verified
+
+  /auth/forgot-password:
+    post:
+      summary: Request password reset code
+      tags: [Authentication]
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email]
+              properties:
+                email:
+                  type: string
+            example:
+              email: "user@example.com"
+      responses:
+        "200":
+          description: Reset code sent if email exists
+
+  /auth/reset-password:
+    post:
+      summary: Reset password with code
+      tags: [Authentication]
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, code, newPassword]
+              properties:
+                email:
+                  type: string
+                code:
+                  type: string
+                newPassword:
+                  type: string
+            example:
+              email: "user@example.com"
+              code: "123456"
+              newPassword: "NewPass123!"
+      responses:
+        "200":
+          description: Password reset successfully
+        "400":
+          description: Invalid or expired code
 
   /auth/refresh:
     post:
-      summary: Refresh token
+      summary: Refresh access token
       tags: [Authentication]
       security: []
       requestBody:
@@ -79,13 +168,23 @@ paths:
     post:
       summary: Logout
       tags: [Authentication]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [refreshToken]
+              properties:
+                refreshToken:
+                  type: string
       responses:
         "200":
-          description: Logged out
+          description: Logged out successfully
 
   /circles:
     get:
-      summary: List circles
+      summary: List circles with cursor pagination
       tags: [Circles]
       parameters:
         - name: cursor
@@ -101,11 +200,13 @@ paths:
           in: query
           schema:
             type: string
+            enum: [FORMING, ACTIVE, RUNNING, COMPLETED]
       responses:
         "200":
-          description: List of circles
+          description: Paginated list of circles
+
     post:
-      summary: Create circle
+      summary: Create new circle (ORGANIZER only)
       tags: [Circles]
       requestBody:
         required: true
@@ -113,15 +214,23 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/CreateCircleRequest'
+            example:
+              name: "My Savings Circle"
+              contributionAmount: 10000
+              memberCount: 5
+              startDate: "2026-06-01T00:00:00.000Z"
+              cycleLengthDays: 30
       responses:
         "201":
           description: Circle created
         "400":
-          description: Validation error
+          description: Invalid start date
+        "403":
+          description: Insufficient role
 
   /circles/{circleId}:
     get:
-      summary: Get circle
+      summary: Get circle details
       tags: [Circles]
       parameters:
         - name: circleId
@@ -131,13 +240,15 @@ paths:
             type: string
       responses:
         "200":
-          description: Circle details
+          description: Circle details with members
+        "403":
+          description: Not a member
         "404":
-          description: Not found
+          description: Circle not found
 
   /circles/{circleId}/join:
     post:
-      summary: Join circle
+      summary: Join a circle
       tags: [Circles]
       parameters:
         - name: circleId
@@ -147,20 +258,115 @@ paths:
             type: string
       responses:
         "201":
-          description: Joined
+          description: Joined successfully
         "403":
-          description: Not forming or trust score low
+          description: Circle not forming or trust score too low
         "409":
-          description: Already member
+          description: Already a member or circle full
+
+  /circles/{circleId}/payments/schedule:
+    post:
+      summary: Create payment schedule (ORGANIZER only)
+      tags: [Payments]
+      parameters:
+        - name: circleId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "201":
+          description: Payment schedule created
+        "403":
+          description: Insufficient role
+
+  /circles/{circleId}/payments:
+    get:
+      summary: Get my payment schedule
+      tags: [Payments]
+      parameters:
+        - name: circleId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: List of payments
+
+  /circles/{circleId}/payments/pay:
+    post:
+      summary: Make a payment
+      tags: [Payments]
+      parameters:
+        - name: circleId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [cycleNumber, amount]
+              properties:
+                cycleNumber:
+                  type: integer
+                amount:
+                  type: number
+            example:
+              cycleNumber: 1
+              amount: 10000
+      responses:
+        "200":
+          description: Payment processed
+        "404":
+          description: Payment not found
+        "409":
+          description: Already paid
+
+  /circles/{circleId}/payments/payout:
+    post:
+      summary: Calculate and process payout (ORGANIZER only)
+      tags: [Payments]
+      parameters:
+        - name: circleId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [cycleNumber]
+              properties:
+                cycleNumber:
+                  type: integer
+            example:
+              cycleNumber: 1
+      responses:
+        "200":
+          description: Payout processed
+        "403":
+          description: Insufficient role
 
   /circles/{circleId}/ledger:
     get:
-      summary: Get ledger
+      summary: Get immutable ledger entries
       tags: [Ledger]
       parameters:
         - name: circleId
           in: path
           required: true
+          schema:
+            type: string
+        - name: cursor
+          in: query
           schema:
             type: string
       responses:
@@ -169,7 +375,7 @@ paths:
 
   /circles/{circleId}/balance:
     get:
-      summary: Get balance
+      summary: Get circle balance
       tags: [Ledger]
       parameters:
         - name: circleId
@@ -179,7 +385,7 @@ paths:
             type: string
       responses:
         "200":
-          description: Balance
+          description: Balance details
 
 components:
   securitySchemes:
@@ -191,14 +397,21 @@ components:
   schemas:
     RegisterRequest:
       type: object
-      required: [phone, password]
+      required: [phone, email, password]
       properties:
         phone:
           type: string
           example: "+77001234567"
+        email:
+          type: string
+          example: "user@example.com"
         password:
           type: string
           minLength: 8
+        firstName:
+          type: string
+        lastName:
+          type: string
 
     CreateCircleRequest:
       type: object
@@ -217,3 +430,6 @@ components:
         startDate:
           type: string
           format: date-time
+        cycleLengthDays:
+          type: integer
+          default: 30
