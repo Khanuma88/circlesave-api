@@ -1,6 +1,7 @@
 const { prisma } = require('../config/database');
-const { CircleStatus, UserRole } = require('../models/enums');
+const { CircleStatus } = require('../models/enums');
 const { logger } = require('../config/logger');
+const { emailService } = require('./email.service');
 
 class CircleService {
   async createCircle(dto, organizerId) {
@@ -126,9 +127,16 @@ class CircleService {
       throw error;
     }
 
+    if (circle.organizerId === userId) {
+      const error = new Error('Organizer cannot join their own circle');
+      error.status = 403;
+      error.code = 'ORGANIZER_CANNOT_JOIN';
+      throw error;
+    }
+
     const user = await prisma.user.findUnique({
       where: { id: userId },
-      select: { trustScore: true },
+      select: { trustScore: true, email: true, firstName: true },
     });
 
     if (!user || Number(user.trustScore) < 0.4) {
@@ -138,11 +146,13 @@ class CircleService {
       throw error;
     }
 
+    const position = circle.memberships.length + 1;
+
     const membership = await prisma.circleMembership.create({
       data: {
         circleId,
         userId,
-        positionInRotation: circle.memberships.length + 1,
+        positionInRotation: position,
       },
       include: {
         user: { select: { id: true, phone: true, firstName: true } },
@@ -154,6 +164,15 @@ class CircleService {
         where: { id: circleId },
         data: { status: CircleStatus.ACTIVE },
       });
+    }
+
+    if (user.email) {
+      await emailService.sendCircleJoinNotification(
+        user.email,
+        user.firstName || 'User',
+        circle.name,
+        position
+      );
     }
 
     logger.info('User joined circle', { circleId, userId });

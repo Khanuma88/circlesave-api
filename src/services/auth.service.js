@@ -2,42 +2,113 @@ const { prisma } = require('../config/database');
 const { redis } = require('../config/redis');
 const { hashPassword, comparePassword, generateAccessToken, generateRefreshToken, verifyRefreshToken } = require('../utils/crypto');
 const { logger } = require('../config/logger');
+const { emailService } = require('./email.service');
 
 const REFRESH_TOKEN_PREFIX = 'refresh:';
 
+const generateCode = () => {
+  return Math.floor(100000 + Math.random() * 900000).toString();
+};
+
 class AuthService {
   async register(dto) {
-    const existingUser = await prisma.user.findUnique({
+    const existingPhone = await prisma.user.findUnique({
       where: { phone: dto.phone },
     });
 
-    if (existingUser) {
+    if (existingPhone) {
       const error = new Error('Phone already registered');
       error.status = 409;
       error.code = 'PHONE_EXISTS';
       throw error;
     }
 
+    const existingEmail = await prisma.user.findUnique({
+      where: { email: dto.email },
+    });
+
+    if (existingEmail) {
+      const error = new Error('Email already registered');
+      error.status = 409;
+      error.code = 'EMAIL_EXISTS';
+      throw error;
+    }
+
     const passwordHash = await hashPassword(dto.password);
+    const verificationCode = generateCode();
+    const expiry = new Date(Date.now() + 15 * 60 * 1000);
 
     const user = await prisma.user.create({
       data: {
         phone: dto.phone,
+        email: dto.email,
         passwordHash,
         firstName: dto.firstName,
         lastName: dto.lastName,
+        emailVerificationCode: verificationCode,
+        emailVerificationExpiry: expiry,
       },
       select: {
         id: true,
         phone: true,
+        email: true,
         role: true,
         trustScore: true,
+        verifiedEmail: true,
         createdAt: true,
       },
     });
 
+    await emailService.sendVerificationEmail(dto.email, dto.firstName || 'User', verificationCode);
+
     logger.info('User registered', { userId: user.id });
     return user;
+  }
+
+  async verifyEmail(dto) {
+    const user = await prisma.user.findUnique({
+      where: { email: dto.email },
+    });
+
+    if (!user) {
+      const error = new Error('User not found');
+      error.status = 404;
+      error.code = 'USER_NOT_FOUND';
+      throw error;
+    }
+
+    if (user.verifiedEmail) {
+      const error = new Error('Email already verified');
+      error.status = 409;
+      error.code = 'ALREADY_VERIFIED';
+      throw error;
+    }
+
+    if (user.emailVerificationCode !== dto.code) {
+      const error = new Error('Invalid verification code');
+      error.status = 400;
+      error.code = 'INVALID_CODE';
+      throw error;
+    }
+
+    if (new Date() > user.emailVerificationExpiry) {
+      const error = new Error('Verification code expired');
+      error.status = 400;
+      error.code = 'CODE_EXPIRED';
+      throw error;
+    }
+
+    await prisma.user.update({
+      where: { email: dto.email },
+      data: {
+        verifiedEmail: true,
+        emailVerificationCode: null,
+        emailVerificationExpiry: null,
+      },
+    });
+
+    logger.info('Email verified', { userId: user.id });
+    return { message: 'Email verified successfully' };
   }
 
   async login(dto) {
@@ -60,6 +131,13 @@ class AuthService {
       throw error;
     }
 
+    if (!user.verifiedEmail) {
+      const error = new Error('Please verify your email first');
+      error.status = 403;
+      error.code = 'EMAIL_NOT_VERIFIED';
+      throw error;
+    }
+
     const accessToken = generateAccessToken({ userId: user.id, role: user.role });
     const refreshToken = generateRefreshToken({ userId: user.id });
 
@@ -76,10 +154,71 @@ class AuthService {
       user: {
         id: user.id,
         phone: user.phone,
+        email: user.email,
         role: user.role,
         trustScore: user.trustScore,
       },
     };
+  }
+
+  async forgotPassword(dto) {
+    const user = await prisma.user.findUnique({
+      where: { email: dto.email },
+    });
+
+    if (!user) {
+      return { message: 'If email exists, reset code will be sent' };
+    }
+
+    const resetCode = generateCode();
+    const expiry = new Date(Date.now() + 15 * 60 * 1000);
+
+    await prisma.user.update({
+      where: { email: dto.email },
+      data: {
+        passwordResetCode: resetCode,
+        passwordResetExpiry: expiry,
+      },
+    });
+
+    await emailService.sendPasswordResetEmail(dto.email, user.firstName || 'User', resetCode);
+
+    logger.info('Password reset requested', { userId: user.id });
+    return { message: 'If email exists, reset code will be sent' };
+  }
+
+  async resetPassword(dto) {
+    const user = await prisma.user.findUnique({
+      where: { email: dto.email },
+    });
+
+    if (!user || user.passwordResetCode !== dto.code) {
+      const error = new Error('Invalid reset code');
+      error.status = 400;
+      error.code = 'INVALID_CODE';
+      throw error;
+    }
+
+    if (new Date() > user.passwordResetExpiry) {
+      const error = new Error('Reset code expired');
+      error.status = 400;
+      error.code = 'CODE_EXPIRED';
+      throw error;
+    }
+
+    const passwordHash = await hashPassword(dto.newPassword);
+
+    await prisma.user.update({
+      where: { email: dto.email },
+      data: {
+        passwordHash,
+        passwordResetCode: null,
+        passwordResetExpiry: null,
+      },
+    });
+
+    logger.info('Password reset successful', { userId: user.id });
+    return { message: 'Password reset successfully' };
   }
 
   async refresh(refreshToken) {

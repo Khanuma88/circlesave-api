@@ -12,6 +12,7 @@ describe('Auth Integration', () => {
   it('should register a new user', async () => {
     const res = await request(app).post('/v1/auth/register').send({
       phone: '+77001234567',
+      email: 'test1@example.com',
       password: 'SecurePass123!',
       firstName: 'Test',
       lastName: 'User',
@@ -23,18 +24,38 @@ describe('Auth Integration', () => {
   it('should reject duplicate phone', async () => {
     const res = await request(app).post('/v1/auth/register').send({
       phone: '+77001234567',
+      email: 'test2@example.com',
       password: 'AnotherPass123!',
     });
     expect(res.status).toBe(409);
   });
 
-  it('should login and return tokens', async () => {
+  it('should login after email verification', async () => {
+    const user = await prisma.user.update({
+      where: { phone: '+77001234567' },
+      data: { verifiedEmail: true },
+    });
+
     const res = await request(app).post('/v1/auth/login').send({
       phone: '+77001234567',
       password: 'SecurePass123!',
     });
     expect(res.status).toBe(200);
     expect(res.body.data.accessToken).toBeDefined();
+  });
+
+  it('should reject unverified user login', async () => {
+    await request(app).post('/v1/auth/register').send({
+      phone: '+77001111111',
+      email: 'unverified@example.com',
+      password: 'SecurePass123!',
+    });
+
+    const res = await request(app).post('/v1/auth/login').send({
+      phone: '+77001111111',
+      password: 'SecurePass123!',
+    });
+    expect(res.status).toBe(403);
   });
 
   it('should reject invalid credentials', async () => {
@@ -52,10 +73,17 @@ describe('Auth Integration', () => {
 
   it('should return 403 for wrong role (MEMBER cannot create circle)', async () => {
     const phone = `+7700${Date.now().toString().slice(-7)}`;
+    const email = `test_${Date.now()}@example.com`;
 
     await request(app).post('/v1/auth/register').send({
       phone,
+      email,
       password: 'Pass123456!',
+    });
+
+    await prisma.user.update({
+      where: { phone },
+      data: { verifiedEmail: true },
     });
 
     const loginRes = await request(app).post('/v1/auth/login').send({

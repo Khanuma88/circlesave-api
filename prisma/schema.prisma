@@ -54,6 +54,7 @@ enum LedgerType {
 model User {
   id            String   @id @default(uuid())
   phone         String   @unique
+  email         String?  @unique  
   passwordHash  String
   firstName     String?
   lastName      String?
@@ -61,6 +62,11 @@ model User {
   trustScore    Decimal  @default(0.5) @db.Decimal(3,2)
   verifiedPhone Boolean  @default(false)
   verifiedId    Boolean  @default(false)
+  verifiedEmail Boolean  @default(false)  
+  emailVerificationCode String?           
+  emailVerificationExpiry DateTime?      
+  passwordResetCode String?               
+  passwordResetExpiry DateTime?            
   
   role          UserRole @default(MEMBER)
   createdAt     DateTime @default(now())
@@ -72,6 +78,7 @@ model User {
   organizedCircles Circle[] @relation("Organizer")
   
   @@index([phone])
+  @@index([email])
   @@index([trustScore])
   @@map("users")
 }

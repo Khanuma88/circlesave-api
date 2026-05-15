@@ -8,6 +8,7 @@ const envSchema = z.object({
   PORT: z.string().default('3000').transform(Number),
   DATABASE_URL: z.string().regex(/^postgresql:\/\//, 'Must be postgresql://'),
   REDIS_URL: z.string().regex(/^redis:\/\//, 'Must be redis://'),
+  RESEND_API_KEY: z.string().min(1).optional(), // добавь эту строку
   JWT_ACCESS_SECRET: z.string().min(32),
   JWT_REFRESH_SECRET: z.string().min(32),
   JWT_ACCESS_EXPIRES_IN: z.string().default('15m'),
