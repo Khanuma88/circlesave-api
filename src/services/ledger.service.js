@@ -69,6 +69,20 @@ class LedgerService {
     });
   }
 
+  async recordPayout(circleId, userId, amount, cycleNumber) {
+    const idempotencyKey = generateIdempotencyKey([
+      'circle', circleId, 'user', userId, 'cycle', cycleNumber.toString(), 'action', 'payout'
+    ]);
+
+    return this.createDoubleEntry({
+      circleId, userId, amount,
+      debitAccount: LedgerAccount.CIRCLE_POT,
+      creditAccount: LedgerAccount.ORGANIZER_PAYABLE,
+      description: `Payout to member cycle ${cycleNumber}`,
+      idempotencyKey,
+    });
+  }
+
   async getCircleBalance(circleId, account) {
     const result = await prisma.ledgerEntry.groupBy({
       by: ['entryType'],

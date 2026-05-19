@@ -4,6 +4,7 @@ const { ledgerService } = require('./ledger.service');
 const { emailService } = require('./email.service');
 const { logger } = require('../config/logger');
 const { randomUUID } = require('crypto');
+const { createAuditLog } = require('../utils/audit');
 
 class PaymentService {
   async createPaymentSchedule(circleId) {
@@ -102,6 +103,15 @@ class PaymentService {
       );
     }
 
+    await createAuditLog(
+  'payments',
+  updatedPayment.id,
+  'PAYMENT_MADE',
+  { status: newStatus, amountPaid: totalPaid },
+  userId,
+  { status: payment.status, amountPaid: Number(payment.amountPaid) }
+);
+
     logger.info('Payment made', { circleId, userId, cycleNumber, amount, status: newStatus });
     return updatedPayment;
   }
@@ -162,6 +172,14 @@ class PaymentService {
         circleId
       );
     }
+    
+    await createAuditLog(
+  'payments',
+  circleId,
+  'PAYOUT_PROCESSED',
+  { cycleNumber, totalCollected, recipientId: recipient.userId },
+  'SYSTEM'
+);
 
     logger.info('Payout calculated', { circleId, cycleNumber, totalCollected, recipientId: recipient.userId });
 

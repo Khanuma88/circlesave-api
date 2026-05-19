@@ -387,6 +387,127 @@ paths:
         "200":
           description: Balance details
 
+  /admin/dashboard:
+    get:
+      summary: Get platform dashboard stats
+      tags: [Admin]
+      responses:
+        "200":
+          description: Dashboard statistics
+        "403":
+          description: Admin only
+
+  /admin/users:
+    get:
+      summary: Get all users
+      tags: [Admin]
+      parameters:
+        - name: cursor
+          in: query
+          schema:
+            type: string
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+      responses:
+        "200":
+          description: List of users
+        "403":
+          description: Admin only
+
+  /admin/users/{userId}/role:
+    patch:
+      summary: Update user role
+      tags: [Admin]
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [role]
+              properties:
+                role:
+                  type: string
+                  enum: [MEMBER, ORGANIZER, ADMIN]
+            example:
+              role: "ORGANIZER"
+      responses:
+        "200":
+          description: Role updated
+        "403":
+          description: Admin only
+
+  /admin/circles:
+    get:
+      summary: Get all circles
+      tags: [Admin]
+      responses:
+        "200":
+          description: List of all circles
+        "403":
+          description: Admin only
+
+  /admin/circles/{circleId}/freeze:
+    patch:
+      summary: Freeze a circle
+      tags: [Admin]
+      parameters:
+        - name: circleId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Circle frozen
+        "403":
+          description: Admin only
+
+  /admin/circles/{circleId}/unfreeze:
+    patch:
+      summary: Unfreeze a circle
+      tags: [Admin]
+      parameters:
+        - name: circleId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Circle unfrozen
+        "403":
+          description: Admin only
+
+  /admin/ledger:
+    get:
+      summary: Get all ledger entries
+      tags: [Admin]
+      parameters:
+        - name: cursor
+          in: query
+          schema:
+            type: string
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+      responses:
+        "200":
+          description: All ledger entries
+        "403":
+          description: Admin only
+
 components:
   securitySchemes:
     BearerAuth:

@@ -173,3 +173,18 @@ model Payment {
   @@index([circleId, cycleNumber])
   @@map("payments")
 }
+
+model AuditLog {
+  id          String   @id @default(uuid())
+  tableName   String
+  recordId    String
+  action      String
+  oldValue    Json?
+  newValue    Json
+  changedBy   String
+  changedAt   DateTime @default(now())
+
+  @@index([tableName, recordId])
+  @@index([changedAt])
+  @@map("audit_logs")
+}
