@@ -1,0 +1,909 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CircleSave — Digital ROSCA Platform</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Segoe UI', sans-serif; background: #f0f2f5; color: #333; }
+    
+    .navbar {
+      background: #4F46E5;
+      color: white;
+      padding: 15px 30px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .navbar h1 { font-size: 24px; }
+    .navbar button {
+      background: white;
+      color: #4F46E5;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    .container { max-width: 1200px; margin: 30px auto; padding: 0 20px; }
+    
+    .page { display: none; }
+    .page.active { display: block; }
+
+    .card {
+      background: white;
+      border-radius: 12px;
+      padding: 30px;
+      margin-bottom: 20px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    .card h2 { margin-bottom: 20px; color: #4F46E5; }
+
+    .form-group { margin-bottom: 15px; }
+    .form-group label { display: block; margin-bottom: 5px; font-weight: 600; }
+    .form-group input, .form-group select {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      font-size: 14px;
+    }
+
+    .btn {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: bold;
+      font-size: 14px;
+      margin-right: 10px;
+      margin-top: 5px;
+    }
+    .btn-primary { background: #4F46E5; color: white; }
+    .btn-success { background: #10B981; color: white; }
+    .btn-danger { background: #EF4444; color: white; }
+    .btn-warning { background: #F59E0B; color: white; }
+    .btn:hover { opacity: 0.9; }
+
+    .alert {
+      padding: 12px;
+      border-radius: 8px;
+      margin-bottom: 15px;
+      font-size: 14px;
+    }
+    .alert-success { background: #D1FAE5; color: #065F46; }
+    .alert-error { background: #FEE2E2; color: #991B1B; }
+    .alert-info { background: #DBEAFE; color: #1E40AF; }
+
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; }
+    
+    .circle-card {
+      background: white;
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      border-left: 4px solid #4F46E5;
+    }
+    .circle-card h3 { color: #4F46E5; margin-bottom: 10px; }
+    .circle-card p { font-size: 14px; color: #666; margin-bottom: 5px; }
+    
+    .badge {
+      display: inline-block;
+      padding: 3px 8px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: bold;
+    }
+    .badge-forming { background: #FEF3C7; color: #92400E; }
+    .badge-active { background: #D1FAE5; color: #065F46; }
+    .badge-frozen { background: #FEE2E2; color: #991B1B; }
+
+    .tabs {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+      border-bottom: 2px solid #eee;
+      padding-bottom: 10px;
+    }
+    .tab {
+      padding: 8px 16px;
+      border: none;
+      background: none;
+      cursor: pointer;
+      font-weight: 600;
+      color: #666;
+      border-radius: 6px;
+    }
+    .tab.active { background: #4F46E5; color: white; }
+
+    .table { width: 100%; border-collapse: collapse; }
+    .table th, .table td { padding: 12px; text-align: left; border-bottom: 1px solid #eee; font-size: 14px; }
+    .table th { background: #f8f9fa; font-weight: 600; }
+
+    .stats-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 15px; margin-bottom: 20px; }
+    .stat-card { background: white; border-radius: 12px; padding: 20px; text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+    .stat-card .number { font-size: 36px; font-weight: bold; color: #4F46E5; }
+    .stat-card .label { font-size: 14px; color: #666; margin-top: 5px; }
+
+    #loading { display: none; text-align: center; padding: 20px; color: #666; }
+  </style>
+</head>
+<body>
+
+<div class="navbar">
+  <h1>🔄 CircleSave</h1>
+  <div id="navButtons">
+    <button onclick="showPage('loginPage')">Login</button>
+    <button onclick="showPage('registerPage')" style="margin-left:10px; background:#E0E7FF; color:#4F46E5;">Register</button>
+  </div>
+  <div id="navUser" style="display:none; color:white;">
+    <span id="navUserName"></span>
+    <span id="navUserRole" style="margin: 0 10px; background: rgba(255,255,255,0.2); padding: 3px 8px; border-radius: 20px; font-size: 12px;"></span>
+    <button onclick="logout()">Logout</button>
+  </div>
+</div>
+
+<div class="container">
+  <div id="alertBox"></div>
+
+  <!-- HOME PAGE -->
+  <div id="homePage" class="page active">
+    <div class="card" style="text-align:center; padding: 60px;">
+      <h2 style="font-size: 36px; margin-bottom: 15px;">Welcome to CircleSave 🔄</h2>
+      <p style="color: #666; font-size: 18px; margin-bottom: 30px;">Digital ROSCA (Құты) Platform — Automated rotating savings circles</p>
+      <button class="btn btn-primary" onclick="showPage('registerPage')" style="font-size:16px; padding: 12px 30px;">Get Started</button>
+      <button class="btn" onclick="showPage('loginPage')" style="font-size:16px; padding: 12px 30px; background:#E0E7FF; color:#4F46E5;">Login</button>
+    </div>
+  </div>
+
+  <!-- REGISTER PAGE -->
+  <div id="registerPage" class="page">
+    <div class="card" style="max-width: 500px; margin: 0 auto;">
+      <h2>Create Account</h2>
+      <div id="registerAlert"></div>
+      <div class="form-group">
+        <label>Phone</label>
+        <input type="text" id="regPhone" placeholder="+77001234567">
+      </div>
+      <div class="form-group">
+        <label>Email</label>
+        <input type="email" id="regEmail" placeholder="your@email.com">
+      </div>
+      <div class="form-group">
+        <label>Password</label>
+        <input type="password" id="regPassword" placeholder="Min 8 characters">
+      </div>
+      <div class="form-group">
+        <label>First Name</label>
+        <input type="text" id="regFirstName" placeholder="First name">
+      </div>
+      <div class="form-group">
+        <label>Last Name</label>
+        <input type="text" id="regLastName" placeholder="Last name">
+      </div>
+      <button class="btn btn-primary" onclick="register()">Register</button>
+      <p style="margin-top:15px; font-size:14px;">Already have an account? <a href="#" onclick="showPage('loginPage')">Login</a></p>
+    </div>
+  </div>
+
+  <!-- VERIFY EMAIL PAGE -->
+  <div id="verifyPage" class="page">
+    <div class="card" style="max-width: 500px; margin: 0 auto;">
+      <h2>Verify Your Email</h2>
+      <div id="verifyAlert"></div>
+      <p style="color:#666; margin-bottom:20px;">We sent a 6-digit code to your email. Please enter it below.</p>
+      <div class="form-group">
+        <label>Email</label>
+        <input type="email" id="verifyEmail" placeholder="your@email.com">
+      </div>
+      <div class="form-group">
+        <label>Verification Code</label>
+        <input type="text" id="verifyCode" placeholder="123456" maxlength="6">
+      </div>
+      <button class="btn btn-primary" onclick="verifyEmail()">Verify Email</button>
+    </div>
+  </div>
+
+  <!-- LOGIN PAGE -->
+  <div id="loginPage" class="page">
+    <div class="card" style="max-width: 500px; margin: 0 auto;">
+      <h2>Login</h2>
+      <div id="loginAlert"></div>
+      <div class="form-group">
+        <label>Phone</label>
+        <input type="text" id="loginPhone" placeholder="+77001234567">
+      </div>
+      <div class="form-group">
+        <label>Password</label>
+        <input type="password" id="loginPassword" placeholder="Password">
+      </div>
+      <button class="btn btn-primary" onclick="login()">Login</button>
+      <button class="btn" onclick="showPage('forgotPage')" style="background:#E0E7FF; color:#4F46E5;">Forgot Password?</button>
+      <p style="margin-top:15px; font-size:14px;">No account? <a href="#" onclick="showPage('registerPage')">Register</a></p>
+    </div>
+  </div>
+
+  <!-- FORGOT PASSWORD PAGE -->
+  <div id="forgotPage" class="page">
+    <div class="card" style="max-width: 500px; margin: 0 auto;">
+      <h2>Forgot Password</h2>
+      <div id="forgotAlert"></div>
+      <div class="form-group">
+        <label>Email</label>
+        <input type="email" id="forgotEmail" placeholder="your@email.com">
+      </div>
+      <button class="btn btn-primary" onclick="forgotPassword()">Send Reset Code</button>
+      <hr style="margin: 20px 0;">
+      <h3 style="margin-bottom:15px;">Reset Password</h3>
+      <div class="form-group">
+        <label>Reset Code</label>
+        <input type="text" id="resetCode" placeholder="123456">
+      </div>
+      <div class="form-group">
+        <label>New Password</label>
+        <input type="password" id="resetPassword" placeholder="New password">
+      </div>
+      <button class="btn btn-success" onclick="resetPassword()">Reset Password</button>
+    </div>
+  </div>
+
+  <!-- DASHBOARD PAGE -->
+  <div id="dashboardPage" class="page">
+    <div class="tabs">
+      <button class="tab active" onclick="switchTab('circlesTab', this)">My Circles</button>
+      <button class="tab" onclick="switchTab('allCirclesTab', this)">All Circles</button>
+      <button class="tab" onclick="switchTab('createCircleTab', this)">Create Circle</button>
+      <button class="tab" onclick="switchTab('paymentsTab', this)">Payments</button>
+      <button class="tab" id="adminTabBtn" style="display:none;" onclick="switchTab('adminTab', this)">Admin Panel</button>
+    </div>
+
+    <!-- MY CIRCLES TAB -->
+    <div id="circlesTab" class="tab-content">
+      <div class="card">
+        <h2>My Circles</h2>
+        <div id="myCirclesList"></div>
+      </div>
+    </div>
+
+    <!-- ALL CIRCLES TAB -->
+    <div id="allCirclesTab" class="tab-content" style="display:none;">
+      <div class="card">
+        <h2>Available Circles</h2>
+        <button class="btn btn-primary" onclick="loadAllCircles()" style="margin-bottom:15px;">Refresh</button>
+        <div id="allCirclesList"></div>
+      </div>
+    </div>
+
+    <!-- CREATE CIRCLE TAB -->
+    <div id="createCircleTab" class="tab-content" style="display:none;">
+      <div class="card" style="max-width:600px;">
+        <h2>Create New Circle</h2>
+        <div id="createCircleAlert"></div>
+        <div class="form-group">
+          <label>Circle Name</label>
+          <input type="text" id="circleName" placeholder="My Savings Circle">
+        </div>
+        <div class="form-group">
+          <label>Contribution Amount (KZT)</label>
+          <input type="number" id="circleAmount" placeholder="10000" min="5000" max="500000">
+        </div>
+        <div class="form-group">
+          <label>Member Count (3-20)</label>
+          <input type="number" id="circleMemberCount" placeholder="5" min="3" max="20">
+        </div>
+        <div class="form-group">
+          <label>Start Date</label>
+          <input type="datetime-local" id="circleStartDate">
+        </div>
+        <div class="form-group">
+          <label>Cycle Length (days)</label>
+          <input type="number" id="circleCycleDays" placeholder="30" value="30">
+        </div>
+        <button class="btn btn-primary" onclick="createCircle()">Create Circle</button>
+      </div>
+    </div>
+
+    <!-- PAYMENTS TAB -->
+    <div id="paymentsTab" class="tab-content" style="display:none;">
+      <div class="card">
+        <h2>My Payments</h2>
+        <div class="form-group" style="max-width:400px;">
+          <label>Select Circle</label>
+          <select id="paymentCircleSelect" onchange="loadMyPayments()">
+            <option value="">-- Select a circle --</option>
+          </select>
+        </div>
+        <div id="paymentsList"></div>
+      </div>
+    </div>
+
+    <!-- ADMIN TAB -->
+    <div id="adminTab" class="tab-content" style="display:none;">
+      <div id="adminStats" class="stats-grid"></div>
+      
+      <div class="card">
+        <h2>All Users</h2>
+        <button class="btn btn-primary" onclick="loadAdminUsers()" style="margin-bottom:15px;">Load Users</button>
+        <div id="adminUsersList"></div>
+      </div>
+
+      <div class="card">
+        <h2>All Circles</h2>
+        <button class="btn btn-primary" onclick="loadAdminCircles()" style="margin-bottom:15px;">Load Circles</button>
+        <div id="adminCirclesList"></div>
+      </div>
+
+      <div class="card">
+        <h2>Ledger Entries</h2>
+        <button class="btn btn-primary" onclick="loadAdminLedger()" style="margin-bottom:15px;">Load Ledger</button>
+        <div id="adminLedgerList"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CIRCLE DETAIL PAGE -->
+  <div id="circleDetailPage" class="page">
+    <button class="btn" onclick="showPage('dashboardPage')" style="background:#E0E7FF; color:#4F46E5; margin-bottom:20px;">← Back</button>
+    <div id="circleDetailContent"></div>
+  </div>
+
+</div>
+
+<script>
+  const API = 'http://localhost:3001/v1';
+  let token = localStorage.getItem('token') || '';
+  let currentUser = JSON.parse(localStorage.getItem('currentUser') || 'null');
+  let selectedCircleId = '';
+
+  // INIT
+  if (token && currentUser) {
+    showDashboard();
+  }
+
+  function showAlert(message, type = 'error', containerId = 'alertBox') {
+    const box = document.getElementById(containerId);
+    if (!box) return;
+    box.innerHTML = `<div class="alert alert-${type}">${message}</div>`;
+    setTimeout(() => box.innerHTML = '', 5000);
+  }
+
+  function showPage(pageId) {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.getElementById(pageId).classList.add('active');
+  }
+
+  function switchTab(tabId, btn) {
+    document.querySelectorAll('.tab-content').forEach(t => t.style.display = 'none');
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.getElementById(tabId).style.display = 'block';
+    btn.classList.add('active');
+    
+    if (tabId === 'allCirclesTab') loadAllCircles();
+    if (tabId === 'circlesTab') loadMyCircles();
+    if (tabId === 'adminTab') loadAdminDashboard();
+    if (tabId === 'paymentsTab') loadCirclesForPayments();
+  }
+
+  async function api(method, path, body = null) {
+    const opts = {
+      method,
+      headers: { 'Content-Type': 'application/json' },
+    };
+    if (token) opts.headers['Authorization'] = `Bearer ${token}`;
+    if (body) opts.body = JSON.stringify(body);
+    
+    const res = await fetch(API + path, opts);
+    const data = await res.json();
+    return { status: res.status, data };
+  }
+
+  // AUTH
+  async function register() {
+    const phone = document.getElementById('regPhone').value;
+    const email = document.getElementById('regEmail').value;
+    const password = document.getElementById('regPassword').value;
+    const firstName = document.getElementById('regFirstName').value;
+    const lastName = document.getElementById('regLastName').value;
+
+    const { status, data } = await api('POST', '/auth/register', { phone, email, password, firstName, lastName });
+    
+    if (status === 201) {
+      showAlert('Registration successful! Check your email for verification code.', 'success', 'registerAlert');
+      document.getElementById('verifyEmail').value = email;
+      setTimeout(() => showPage('verifyPage'), 1500);
+    } else {
+      showAlert(data.message || 'Registration failed', 'error', 'registerAlert');
+    }
+  }
+
+  async function verifyEmail() {
+    const email = document.getElementById('verifyEmail').value;
+    const code = document.getElementById('verifyCode').value;
+
+    const { status, data } = await api('POST', '/auth/verify-email', { email, code });
+    
+    if (status === 200) {
+      showAlert('Email verified! You can now login.', 'success', 'verifyAlert');
+      setTimeout(() => showPage('loginPage'), 1500);
+    } else {
+      showAlert(data.message || 'Verification failed', 'error', 'verifyAlert');
+    }
+  }
+
+  async function login() {
+    const phone = document.getElementById('loginPhone').value;
+    const password = document.getElementById('loginPassword').value;
+
+    const { status, data } = await api('POST', '/auth/login', { phone, password });
+    
+    if (status === 200) {
+      token = data.data.accessToken;
+      currentUser = data.data.user;
+      localStorage.setItem('token', token);
+      localStorage.setItem('currentUser', JSON.stringify(currentUser));
+      showDashboard();
+    } else {
+      showAlert(data.message || 'Login failed', 'error', 'loginAlert');
+    }
+  }
+
+  async function forgotPassword() {
+    const email = document.getElementById('forgotEmail').value;
+    const { status, data } = await api('POST', '/auth/forgot-password', { email });
+    if (status === 200) {
+      showAlert('Reset code sent to your email!', 'success', 'forgotAlert');
+    } else {
+      showAlert(data.message || 'Failed', 'error', 'forgotAlert');
+    }
+  }
+
+  async function resetPassword() {
+    const email = document.getElementById('forgotEmail').value;
+    const code = document.getElementById('resetCode').value;
+    const newPassword = document.getElementById('resetPassword').value;
+
+    const { status, data } = await api('POST', '/auth/reset-password', { email, code, newPassword });
+    if (status === 200) {
+      showAlert('Password reset successfully! Please login.', 'success', 'forgotAlert');
+      setTimeout(() => showPage('loginPage'), 1500);
+    } else {
+      showAlert(data.message || 'Failed', 'error', 'forgotAlert');
+    }
+  }
+
+  function logout() {
+    token = '';
+    currentUser = null;
+    localStorage.removeItem('token');
+    localStorage.removeItem('currentUser');
+    document.getElementById('navButtons').style.display = 'flex';
+    document.getElementById('navUser').style.display = 'none';
+    showPage('homePage');
+  }
+
+  function showDashboard() {
+    document.getElementById('navButtons').style.display = 'none';
+    document.getElementById('navUser').style.display = 'flex';
+    document.getElementById('navUserName').textContent = currentUser.firstName || currentUser.phone;
+    document.getElementById('navUserRole').textContent = currentUser.role;
+    
+    if (currentUser.role === 'ADMIN') {
+      document.getElementById('adminTabBtn').style.display = 'inline-block';
+    }
+    
+    showPage('dashboardPage');
+    loadMyCircles();
+  }
+
+  // CIRCLES
+  async function loadMyCircles() {
+    const { status, data } = await api('GET', '/circles');
+    const list = document.getElementById('myCirclesList');
+    
+    if (status === 200 && data.data.data.length > 0) {
+      list.innerHTML = `<div class="grid">${data.data.data.map(c => `
+        <div class="circle-card">
+          <h3>${c.name}</h3>
+          <p>💰 ${c.contributionAmount} KZT</p>
+          <p>👥 ${c._count.memberships}/${c.memberCount} members</p>
+          <p>📅 Starts: ${new Date(c.startDate).toLocaleDateString()}</p>
+          <span class="badge badge-${c.status.toLowerCase()}">${c.status}</span>
+          <br><br>
+          <button class="btn btn-primary" onclick="viewCircle('${c.id}')">View Details</button>
+        </div>
+      `).join('')}</div>`;
+    } else {
+      list.innerHTML = '<p style="color:#666;">No circles found. Join or create one!</p>';
+    }
+  }
+
+  async function loadAllCircles() {
+    const { status, data } = await api('GET', '/circles');
+    const list = document.getElementById('allCirclesList');
+    
+    if (status === 200 && data.data.data.length > 0) {
+      list.innerHTML = `<div class="grid">${data.data.data.map(c => `
+        <div class="circle-card">
+          <h3>${c.name}</h3>
+          <p>💰 ${c.contributionAmount} KZT/month</p>
+          <p>👥 ${c._count.memberships}/${c.memberCount} members</p>
+          <p>🏗️ Organizer: ${c.organizer.firstName || c.organizer.phone}</p>
+          <p>📅 Starts: ${new Date(c.startDate).toLocaleDateString()}</p>
+          <span class="badge badge-${c.status.toLowerCase()}">${c.status}</span>
+          <br><br>
+          ${c.status === 'FORMING' ? `<button class="btn btn-success" onclick="joinCircle('${c.id}')">Join Circle</button>` : ''}
+          <button class="btn" onclick="viewCircle('${c.id}')" style="background:#E0E7FF;color:#4F46E5;">Details</button>
+        </div>
+      `).join('')}</div>`;
+    } else {
+      list.innerHTML = '<p style="color:#666;">No circles available.</p>';
+    }
+  }
+
+  async function joinCircle(circleId) {
+    const { status, data } = await api('POST', `/circles/${circleId}/join`);
+    if (status === 201) {
+      showAlert('Successfully joined the circle!', 'success');
+      loadAllCircles();
+    } else {
+      showAlert(data.message || 'Failed to join', 'error');
+    }
+  }
+
+  async function createCircle() {
+    const name = document.getElementById('circleName').value;
+    const contributionAmount = parseFloat(document.getElementById('circleAmount').value);
+    const memberCount = parseInt(document.getElementById('circleMemberCount').value);
+    const startDate = document.getElementById('circleStartDate').value;
+    const cycleLengthDays = parseInt(document.getElementById('circleCycleDays').value);
+
+    if (!startDate) {
+      showAlert('Please select a start date', 'error', 'createCircleAlert');
+      return;
+    }
+
+    const { status, data } = await api('POST', '/circles', {
+      name, contributionAmount, memberCount,
+      startDate: new Date(startDate).toISOString(),
+      cycleLengthDays
+    });
+
+    if (status === 201) {
+      showAlert('Circle created successfully!', 'success', 'createCircleAlert');
+      loadMyCircles();
+    } else {
+      showAlert(data.message || 'Failed to create circle', 'error', 'createCircleAlert');
+    }
+  }
+
+  async function viewCircle(circleId) {
+    selectedCircleId = circleId;
+    const { status, data } = await api('GET', `/circles/${circleId}`);
+    
+    if (status === 200) {
+      const circle = data.data;
+      const isOrganizer = circle.organizerId === currentUser.id;
+      const isAdmin = currentUser.role === 'ADMIN';
+
+      document.getElementById('circleDetailContent').innerHTML = `
+        <div class="card">
+          <h2>${circle.name}</h2>
+          <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap:15px; margin-bottom:20px;">
+            <div class="stat-card">
+              <div class="number">${circle.contributionAmount}</div>
+              <div class="label">KZT / month</div>
+            </div>
+            <div class="stat-card">
+              <div class="number">${circle.memberships.length}/${circle.memberCount}</div>
+              <div class="label">Members</div>
+            </div>
+            <div class="stat-card">
+              <div class="number" style="font-size:20px;">${circle.status}</div>
+              <div class="label">Status</div>
+            </div>
+          </div>
+
+          <h3 style="margin-bottom:15px;">Members</h3>
+          <table class="table">
+            <thead><tr><th>Position</th><th>Name</th><th>Phone</th><th>Trust Score</th><th>Status</th></tr></thead>
+            <tbody>
+              ${circle.memberships.map(m => `
+                <tr>
+                  <td>#${m.positionInRotation}</td>
+                  <td>${m.user.firstName || 'N/A'}</td>
+                  <td>${m.user.phone}</td>
+                  <td>${m.user.trustScore}</td>
+                  <td>${m.status}</td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+
+          ${(isOrganizer || isAdmin) ? `
+            <div style="margin-top:20px;">
+              <h3 style="margin-bottom:15px;">Organizer Actions</h3>
+              <button class="btn btn-primary" onclick="createSchedule('${circleId}')">Create Payment Schedule</button>
+              <button class="btn btn-success" onclick="processPayoutPrompt('${circleId}')">Process Payout</button>
+            </div>
+          ` : ''}
+
+          <div style="margin-top:20px;">
+            <h3 style="margin-bottom:15px;">Ledger</h3>
+            <button class="btn btn-primary" onclick="loadCircleLedger('${circleId}')">Load Ledger</button>
+            <div id="circleLedger" style="margin-top:15px;"></div>
+          </div>
+
+          <div style="margin-top:20px;">
+            <h3 style="margin-bottom:15px;">Balance</h3>
+            <button class="btn btn-primary" onclick="loadCircleBalance('${circleId}')">Load Balance</button>
+            <div id="circleBalance" style="margin-top:15px;"></div>
+          </div>
+        </div>
+      `;
+      showPage('circleDetailPage');
+    } else {
+      showAlert(data.message || 'Failed to load circle', 'error');
+    }
+  }
+
+  async function createSchedule(circleId) {
+    const { status, data } = await api('POST', `/circles/${circleId}/payments/schedule`);
+    if (status === 201) {
+      showAlert(`Payment schedule created! ${data.data.length} payments scheduled.`, 'success');
+    } else {
+      showAlert(data.message || 'Failed', 'error');
+    }
+  }
+
+  async function processPayoutPrompt(circleId) {
+    const cycleNumber = prompt('Enter cycle number for payout:');
+    if (!cycleNumber) return;
+    
+    const { status, data } = await api('POST', `/circles/${circleId}/payments/payout`, { cycleNumber: parseInt(cycleNumber) });
+    if (status === 200) {
+      showAlert(`Payout processed! Total: ${data.data.totalCollected} KZT to position #${data.data.recipientPosition}`, 'success');
+    } else {
+      showAlert(data.message || 'Failed', 'error');
+    }
+  }
+
+  async function loadCircleLedger(circleId) {
+    const { status, data } = await api('GET', `/circles/${circleId}/ledger`);
+    const div = document.getElementById('circleLedger');
+    
+    if (status === 200 && data.data.entries.length > 0) {
+      div.innerHTML = `
+        <table class="table">
+          <thead><tr><th>Type</th><th>Account</th><th>Amount</th><th>Description</th><th>Date</th></tr></thead>
+          <tbody>
+            ${data.data.entries.map(e => `
+              <tr>
+                <td><span class="badge ${e.entryType === 'DEBIT' ? 'badge-forming' : 'badge-active'}">${e.entryType}</span></td>
+                <td>${e.account}</td>
+                <td>${e.amount} KZT</td>
+                <td>${e.description || '-'}</td>
+                <td>${new Date(e.createdAt).toLocaleDateString()}</td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      `;
+    } else {
+      div.innerHTML = '<p style="color:#666;">No ledger entries yet.</p>';
+    }
+  }
+
+  async function loadCircleBalance(circleId) {
+    const { status, data } = await api('GET', `/circles/${circleId}/balance`);
+    const div = document.getElementById('circleBalance');
+    
+    if (status === 200) {
+      const b = data.data;
+      div.innerHTML = `
+        <div style="display:grid; grid-template-columns: repeat(3,1fr); gap:15px;">
+          <div class="stat-card"><div class="number" style="color:#10B981;">${b.debits}</div><div class="label">Debits</div></div>
+          <div class="stat-card"><div class="number" style="color:#EF4444;">${b.credits}</div><div class="label">Credits</div></div>
+          <div class="stat-card"><div class="number">${b.net}</div><div class="label">Net Balance</div></div>
+        </div>
+      `;
+    }
+  }
+
+  // PAYMENTS
+  async function loadCirclesForPayments() {
+    const { status, data } = await api('GET', '/circles');
+    const select = document.getElementById('paymentCircleSelect');
+    
+    if (status === 200) {
+      select.innerHTML = '<option value="">-- Select a circle --</option>';
+      data.data.data.forEach(c => {
+        select.innerHTML += `<option value="${c.id}">${c.name}</option>`;
+      });
+    }
+  }
+
+  async function loadMyPayments() {
+    const circleId = document.getElementById('paymentCircleSelect').value;
+    if (!circleId) return;
+    
+    const { status, data } = await api('GET', `/circles/${circleId}/payments`);
+    const div = document.getElementById('paymentsList');
+    
+    if (status === 200 && data.data.length > 0) {
+      div.innerHTML = `
+        <table class="table" style="margin-top:15px;">
+          <thead><tr><th>Cycle</th><th>Amount Due</th><th>Amount Paid</th><th>Status</th><th>Due Date</th><th>Action</th></tr></thead>
+          <tbody>
+            ${data.data.map(p => `
+              <tr>
+                <td>#${p.cycleNumber}</td>
+                <td>${p.amountDue} KZT</td>
+                <td>${p.amountPaid} KZT</td>
+                <td><span class="badge badge-${p.status === 'PAID' ? 'active' : 'forming'}">${p.status}</span></td>
+                <td>${new Date(p.dueDate).toLocaleDateString()}</td>
+                <td>
+                  ${p.status !== 'PAID' ? `<button class="btn btn-success" onclick="makePayment('${circleId}', ${p.cycleNumber}, ${p.amountDue})">Pay</button>` : '✅ Paid'}
+                </td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      `;
+    } else {
+      div.innerHTML = '<p style="color:#666; margin-top:15px;">No payments found for this circle.</p>';
+    }
+  }
+
+  async function makePayment(circleId, cycleNumber, amount) {
+    const { status, data } = await api('POST', `/circles/${circleId}/payments/pay`, {
+      cycleNumber,
+      amount: parseFloat(amount)
+    });
+    
+    if (status === 200) {
+      showAlert('Payment successful!', 'success');
+      loadMyPayments();
+    } else {
+      showAlert(data.message || 'Payment failed', 'error');
+    }
+  }
+
+  // ADMIN
+  async function loadAdminDashboard() {
+    const { status, data } = await api('GET', '/admin/dashboard');
+    if (status === 200) {
+      const s = data.data;
+      document.getElementById('adminStats').innerHTML = `
+        <div class="stat-card"><div class="number">${s.totalUsers}</div><div class="label">Total Users</div></div>
+        <div class="stat-card"><div class="number">${s.totalCircles}</div><div class="label">Total Circles</div></div>
+        <div class="stat-card"><div class="number">${s.activeCircles}</div><div class="label">Active Circles</div></div>
+        <div class="stat-card"><div class="number">${s.totalPayments}</div><div class="label">Total Payments</div></div>
+        <div class="stat-card"><div class="number">${s.totalLedgerEntries}</div><div class="label">Ledger Entries</div></div>
+      `;
+    }
+  }
+
+  async function loadAdminUsers() {
+    const { status, data } = await api('GET', '/admin/users');
+    const div = document.getElementById('adminUsersList');
+    
+    if (status === 200) {
+      div.innerHTML = `
+        <table class="table">
+          <thead><tr><th>Name</th><th>Phone</th><th>Email</th><th>Role</th><th>Trust Score</th><th>Verified</th><th>Actions</th></tr></thead>
+          <tbody>
+            ${data.data.users.map(u => `
+              <tr>
+                <td>${u.firstName || '-'} ${u.lastName || ''}</td>
+                <td>${u.phone}</td>
+                <td>${u.email || '-'}</td>
+                <td><span class="badge badge-${u.role === 'ADMIN' ? 'active' : 'forming'}">${u.role}</span></td>
+                <td>${u.trustScore}</td>
+                <td>${u.verifiedEmail ? '✅' : '❌'}</td>
+                <td>
+                  <select onchange="updateRole('${u.id}', this.value)">
+                    <option value="">Change role</option>
+                    <option value="MEMBER">MEMBER</option>
+                    <option value="ORGANIZER">ORGANIZER</option>
+                    <option value="ADMIN">ADMIN</option>
+                  </select>
+                </td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      `;
+    }
+  }
+
+  async function updateRole(userId, role) {
+    if (!role) return;
+    const { status, data } = await api('PATCH', `/admin/users/${userId}/role`, { role });
+    if (status === 200) {
+      showAlert(`Role updated to ${role}`, 'success');
+      loadAdminUsers();
+    } else {
+      showAlert(data.message || 'Failed', 'error');
+    }
+  }
+
+  async function loadAdminCircles() {
+    const { status, data } = await api('GET', '/admin/circles');
+    const div = document.getElementById('adminCirclesList');
+    
+    if (status === 200) {
+      div.innerHTML = `
+        <table class="table">
+          <thead><tr><th>Name</th><th>Amount</th><th>Members</th><th>Status</th><th>Actions</th></tr></thead>
+          <tbody>
+            ${data.data.map(c => `
+              <tr>
+                <td>${c.name}</td>
+                <td>${c.contributionAmount} KZT</td>
+                <td>${c._count.memberships}/${c.memberCount}</td>
+                <td><span class="badge badge-${c.status.toLowerCase()}">${c.status}</span></td>
+                <td>
+                  ${c.status !== 'FROZEN' 
+                    ? `<button class="btn btn-danger" onclick="freezeCircle('${c.id}')">Freeze</button>`
+                    : `<button class="btn btn-success" onclick="unfreezeCircle('${c.id}')">Unfreeze</button>`
+                  }
+                </td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      `;
+    }
+  }
+
+  async function freezeCircle(circleId) {
+    const { status, data } = await api('PATCH', `/admin/circles/${circleId}/freeze`);
+    if (status === 200) {
+      showAlert('Circle frozen!', 'success');
+      loadAdminCircles();
+    } else {
+      showAlert(data.message || 'Failed', 'error');
+    }
+  }
+
+  async function unfreezeCircle(circleId) {
+    const { status, data } = await api('PATCH', `/admin/circles/${circleId}/unfreeze`);
+    if (status === 200) {
+      showAlert('Circle unfrozen!', 'success');
+      loadAdminCircles();
+    } else {
+      showAlert(data.message || 'Failed', 'error');
+    }
+  }
+
+  async function loadAdminLedger() {
+    const { status, data } = await api('GET', '/admin/ledger');
+    const div = document.getElementById('adminLedgerList');
+    
+    if (status === 200) {
+      div.innerHTML = `
+        <table class="table">
+          <thead><tr><th>Type</th><th>Account</th><th>Amount</th><th>Circle</th><th>User</th><th>Date</th></tr></thead>
+          <tbody>
+            ${data.data.entries.map(e => `
+              <tr>
+                <td><span class="badge ${e.entryType === 'DEBIT' ? 'badge-forming' : 'badge-active'}">${e.entryType}</span></td>
+                <td>${e.account}</td>
+                <td>${e.amount} KZT</td>
+                <td>${e.circle?.name || '-'}</td>
+                <td>${e.user?.firstName || e.user?.phone || '-'}</td>
+                <td>${new Date(e.createdAt).toLocaleDateString()}</td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      `;
+    }
+  }
+</script>
+
+</body>
+</html>
