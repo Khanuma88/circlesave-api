@@ -1,5 +1,3 @@
-// Financial math helpers
-
 const roundToKZT = (amount) => {
   return Math.round(Number(amount) * 100) / 100;
 };

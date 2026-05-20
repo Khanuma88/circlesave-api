@@ -93,6 +93,45 @@ class CircleService {
     return { data: circles, nextCursor };
   }
 
+  async updateCircle(circleId, dto, userId) {
+    const circle = await prisma.circle.findUnique({
+      where: { id: circleId },
+    });
+
+    if (!circle) {
+      const error = new Error('Circle not found');
+      error.status = 404;
+      error.code = 'CIRCLE_NOT_FOUND';
+      throw error;
+    }
+
+    if (circle.organizerId !== userId) {
+      const error = new Error('Only organizer can update circle');
+      error.status = 403;
+      error.code = 'FORBIDDEN';
+      throw error;
+    }
+
+    if (circle.status !== 'FORMING') {
+      const error = new Error('Cannot update active circle');
+      error.status = 400;
+      error.code = 'CIRCLE_NOT_FORMING';
+      throw error;
+    }
+
+    const updated = await prisma.circle.update({
+      where: { id: circleId },
+      data: {
+        name: dto.name || circle.name,
+        contributionAmount: dto.contributionAmount || circle.contributionAmount,
+        memberCount: dto.memberCount || circle.memberCount,
+      },
+    });
+
+    logger.info('Circle updated', { circleId, userId });
+    return updated;
+  }
+
   async joinCircle(circleId, userId) {
     const circle = await prisma.circle.findUnique({
       where: { id: circleId },

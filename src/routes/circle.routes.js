@@ -14,5 +14,6 @@ router.post('/', requireRole(UserRole.ORGANIZER, UserRole.ADMIN), validate(creat
 router.get('/', circleController.list);
 router.get('/:circleId', circleController.getById);
 router.post('/:circleId/join', circleController.join);
+router.patch('/:circleId', circleController.update);
 
 module.exports = router;

@@ -149,7 +149,7 @@
 <div class="container">
   <div id="alertBox"></div>
 
-  <!-- HOME PAGE -->
+  <!-- home page -->
   <div id="homePage" class="page active">
     <div class="card" style="text-align:center; padding: 60px;">
       <h2 style="font-size: 36px; margin-bottom: 15px;">Welcome to CircleSave 🔄</h2>
@@ -159,7 +159,7 @@
     </div>
   </div>
 
-  <!-- REGISTER PAGE -->
+  <!-- register page -->
   <div id="registerPage" class="page">
     <div class="card" style="max-width: 500px; margin: 0 auto;">
       <h2>Create Account</h2>
@@ -189,7 +189,7 @@
     </div>
   </div>
 
-  <!-- VERIFY EMAIL PAGE -->
+  <!--verify email page-->
   <div id="verifyPage" class="page">
     <div class="card" style="max-width: 500px; margin: 0 auto;">
       <h2>Verify Your Email</h2>
@@ -207,7 +207,7 @@
     </div>
   </div>
 
-  <!-- LOGIN PAGE -->
+  <!--login page-->
   <div id="loginPage" class="page">
     <div class="card" style="max-width: 500px; margin: 0 auto;">
       <h2>Login</h2>
@@ -226,7 +226,7 @@
     </div>
   </div>
 
-  <!-- FORGOT PASSWORD PAGE -->
+  <!--forgot password page-->
   <div id="forgotPage" class="page">
     <div class="card" style="max-width: 500px; margin: 0 auto;">
       <h2>Forgot Password</h2>
@@ -250,7 +250,7 @@
     </div>
   </div>
 
-  <!-- DASHBOARD PAGE -->
+  <!--dashboard page-->
   <div id="dashboardPage" class="page">
     <div class="tabs">
       <button class="tab active" onclick="switchTab('circlesTab', this)">My Circles</button>
@@ -260,7 +260,7 @@
       <button class="tab" id="adminTabBtn" style="display:none;" onclick="switchTab('adminTab', this)">Admin Panel</button>
     </div>
 
-    <!-- MY CIRCLES TAB -->
+    <!--my circles tab-->
     <div id="circlesTab" class="tab-content">
       <div class="card">
         <h2>My Circles</h2>
@@ -268,7 +268,7 @@
       </div>
     </div>
 
-    <!-- ALL CIRCLES TAB -->
+    <!--all circles tab-->
     <div id="allCirclesTab" class="tab-content" style="display:none;">
       <div class="card">
         <h2>Available Circles</h2>
@@ -277,7 +277,7 @@
       </div>
     </div>
 
-    <!-- CREATE CIRCLE TAB -->
+    <!--create circle tab-->
     <div id="createCircleTab" class="tab-content" style="display:none;">
       <div class="card" style="max-width:600px;">
         <h2>Create New Circle</h2>
@@ -306,7 +306,7 @@
       </div>
     </div>
 
-    <!-- PAYMENTS TAB -->
+    <!--payments tab-->
     <div id="paymentsTab" class="tab-content" style="display:none;">
       <div class="card">
         <h2>My Payments</h2>
@@ -320,7 +320,7 @@
       </div>
     </div>
 
-    <!-- ADMIN TAB -->
+    <!--admin tab-->
     <div id="adminTab" class="tab-content" style="display:none;">
       <div id="adminStats" class="stats-grid"></div>
       
@@ -344,7 +344,7 @@
     </div>
   </div>
 
-  <!-- CIRCLE DETAIL PAGE -->
+  <!-- circle detail page-->
   <div id="circleDetailPage" class="page">
     <button class="btn" onclick="showPage('dashboardPage')" style="background:#E0E7FF; color:#4F46E5; margin-bottom:20px;">← Back</button>
     <div id="circleDetailContent"></div>
@@ -358,7 +358,7 @@
   let currentUser = JSON.parse(localStorage.getItem('currentUser') || 'null');
   let selectedCircleId = '';
 
-  // INIT
+  // init
   if (token && currentUser) {
     showDashboard();
   }
@@ -400,7 +400,7 @@
     return { status: res.status, data };
   }
 
-  // AUTH
+  // auth
   async function register() {
     const phone = document.getElementById('regPhone').value;
     const email = document.getElementById('regEmail').value;
@@ -498,7 +498,7 @@
     loadMyCircles();
   }
 
-  // CIRCLES
+  // circles
   async function loadMyCircles() {
     const { status, data } = await api('GET', '/circles');
     const list = document.getElementById('myCirclesList');
@@ -627,6 +627,7 @@
               <h3 style="margin-bottom:15px;">Organizer Actions</h3>
               <button class="btn btn-primary" onclick="createSchedule('${circleId}')">Create Payment Schedule</button>
               <button class="btn btn-success" onclick="processPayoutPrompt('${circleId}')">Process Payout</button>
+              <button class="btn btn-warning" onclick="editCirclePrompt('${circleId}')">Edit Circle</button>
             </div>
           ` : ''}
 
@@ -712,7 +713,20 @@
     }
   }
 
-  // PAYMENTS
+  async function editCirclePrompt(circleId) {
+  const name = prompt('Enter new circle name:');
+  if (!name) return;
+  
+  const { status, data } = await api('PATCH', `/circles/${circleId}`, { name });
+  if (status === 200) {
+    showAlert('Circle updated!', 'success');
+    viewCircle(circleId);
+  } else {
+    showAlert(data.message || 'Failed', 'error');
+  }
+}
+
+  // payments
   async function loadCirclesForPayments() {
     const { status, data } = await api('GET', '/circles');
     const select = document.getElementById('paymentCircleSelect');
@@ -771,7 +785,7 @@
     }
   }
 
-  // ADMIN
+  // admin
   async function loadAdminDashboard() {
     const { status, data } = await api('GET', '/admin/dashboard');
     if (status === 200) {
