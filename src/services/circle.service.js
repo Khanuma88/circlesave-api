@@ -1,7 +1,26 @@
 const { prisma } = require('../config/database');
+const { redis } = require('../config/redis');
+const { Queue } = require('bullmq');
 const { CircleStatus } = require('../models/enums');
 const { logger } = require('../config/logger');
-const { emailService } = require('./email.service');
+
+let emailQueue;
+try {
+  emailQueue = new Queue('emails', {
+    connection: redis,
+    defaultJobOptions: {
+      attempts: 3,
+      backoff: {
+        type: 'exponential',
+        delay: 2000,
+      },
+      removeOnComplete: 100,
+      removeOnFail: 500,
+    },
+  });
+} catch (error) {
+  logger.error('Failed to create email queue:', error);
+}
 
 class CircleService {
   async createCircle(dto, organizerId) {
@@ -192,7 +211,7 @@ class CircleService {
         circleId,
         userId,
         positionInRotation: position,
-        status:'ACTIVE',
+        status: 'ACTIVE',
       },
       include: {
         user: { select: { id: true, phone: true, firstName: true } },
@@ -206,13 +225,23 @@ class CircleService {
       });
     }
 
-    if (user.email) {
-      await emailService.sendCircleJoinNotification(
-        user.email,
-        user.firstName || 'User',
-        circle.name,
-        position
-      );
+    if (user.email && emailQueue) {
+      try {
+        await emailQueue.add('send-circle-join', {
+          type: 'circle_join',
+          to: user.email,
+          data: {
+            name: user.firstName || 'User',
+            circleName: circle.name,
+            position: position,
+          },
+        }, {
+          jobId: `join-${circleId}-${userId}-${Date.now()}`,
+        });
+        logger.info('Circle join email queued', { circleId, userId, email: user.email });
+      } catch (error) {
+        logger.error('Failed to queue circle join email', { error: error.message });
+      }
     }
 
     logger.info('User joined circle', { circleId, userId });
@@ -221,4 +250,4 @@ class CircleService {
 }
 
 const circleService = new CircleService();
-module.exports = { circleService };
+module.exports = { circleService, emailQueue };

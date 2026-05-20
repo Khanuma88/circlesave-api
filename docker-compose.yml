@@ -17,6 +17,8 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+    networks:
+      - circlesave-network
 
   redis:
     image: redis:7-alpine
@@ -24,6 +26,13 @@ services:
       - "6379:6379"
     volumes:
       - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - circlesave-network
 
   backend:
     build:
@@ -48,7 +57,54 @@ services:
       db:
         condition: service_healthy
       redis:
-        condition: service_started
+        condition: service_healthy
+    networks:
+      - circlesave-network
+    restart: unless-stopped
+
+  # Worker для обработки email очереди (BullMQ)
+  email-worker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: node src/workers/email.worker.js
+    environment:
+      NODE_ENV: production
+      DATABASE_URL: postgresql://postgres:postgres@db:5432/circlesave
+      REDIS_URL: redis://redis:6379
+      RESEND_API_KEY: ${RESEND_API_KEY}
+      JWT_ACCESS_SECRET: ${JWT_ACCESS_SECRET}
+      JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET}
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - circlesave-network
+    restart: unless-stopped
+
+  # Worker для обработки платежей и cron задач (BullMQ)
+  payment-worker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: node src/workers/payment.worker.js
+    environment:
+      NODE_ENV: production
+      DATABASE_URL: postgresql://postgres:postgres@db:5432/circlesave
+      REDIS_URL: redis://redis:6379
+      RESEND_API_KEY: ${RESEND_API_KEY}
+      JWT_ACCESS_SECRET: ${JWT_ACCESS_SECRET}
+      JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET}
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - circlesave-network
+    restart: unless-stopped
 
   frontend:
     image: nginx:alpine
@@ -58,7 +114,14 @@ services:
       - ./frontend:/usr/share/nginx/html
     depends_on:
       - backend
+    networks:
+      - circlesave-network
+    restart: unless-stopped
 
 volumes:
   postgres_data:
   redis_data:
+
+networks:
+  circlesave-network:
+    driver: bridge

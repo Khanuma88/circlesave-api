@@ -1,10 +1,20 @@
 const { prisma } = require('../config/database');
 const { redis } = require('../config/redis');
+const { Queue } = require('bullmq');
 const { hashPassword, comparePassword, generateAccessToken, generateRefreshToken, verifyRefreshToken } = require('../utils/crypto');
 const { logger } = require('../config/logger');
-const { emailService } = require('./email.service');
 
 const REFRESH_TOKEN_PREFIX = 'refresh:';
+
+const emailQueue = new Queue('emails', {
+  connection: redis,
+  defaultJobOptions: {
+    attempts: 3,
+    backoff: { type: 'exponential', delay: 2000 },
+    removeOnComplete: 100,
+    removeOnFail: 500,
+  },
+});
 
 const generateCode = () => {
   return Math.floor(100000 + Math.random() * 900000).toString();
@@ -59,7 +69,11 @@ class AuthService {
       },
     });
 
-    await emailService.sendVerificationEmail(dto.email, dto.firstName || 'User', verificationCode);
+    await emailQueue.add('send-verification', {
+      type: 'verification',
+      to: dto.email,
+      data: { name: dto.firstName || 'User', code: verificationCode },
+    });
 
     logger.info('User registered', { userId: user.id });
     return user;
@@ -181,7 +195,11 @@ class AuthService {
       },
     });
 
-    await emailService.sendPasswordResetEmail(dto.email, user.firstName || 'User', resetCode);
+    await emailQueue.add('send-password-reset', {
+      type: 'password_reset',
+      to: dto.email,
+      data: { name: user.firstName || 'User', code: resetCode },
+    });
 
     logger.info('Password reset requested', { userId: user.id });
     return { message: 'If email exists, reset code will be sent' };
@@ -264,4 +282,4 @@ class AuthService {
 }
 
 const authService = new AuthService();
-module.exports = { authService };
+module.exports = { authService, emailQueue };

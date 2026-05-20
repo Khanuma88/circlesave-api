@@ -1,10 +1,29 @@
 const { prisma } = require('../config/database');
+const { redis } = require('../config/redis');
+const { Queue } = require('bullmq');
 const { PaymentStatus, LedgerAccount } = require('../models/enums');
 const { ledgerService } = require('./ledger.service');
-const { emailService } = require('./email.service');
 const { logger } = require('../config/logger');
 const { randomUUID } = require('crypto');
 const { createAuditLog } = require('../utils/audit');
+
+let emailQueue;
+try {
+  emailQueue = new Queue('emails', {
+    connection: redis,
+    defaultJobOptions: {
+      attempts: 3,
+      backoff: {
+        type: 'exponential',
+        delay: 2000,
+      },
+      removeOnComplete: 100,
+      removeOnFail: 500,
+    },
+  });
+} catch (error) {
+  logger.error('Failed to create email queue:', error);
+}
 
 class PaymentService {
   async createPaymentSchedule(circleId) {
@@ -94,23 +113,33 @@ class PaymentService {
 
     await ledgerService.recordMemberContribution(circleId, userId, amount, cycleNumber);
 
-    if (newStatus === PaymentStatus.PAID && payment.user.email) {
-      await emailService.sendPayoutNotification(
-        payment.user.email,
-        payment.user.firstName || 'User',
-        amount,
-        circleId
-      );
+    if (newStatus === PaymentStatus.PAID && payment.user.email && emailQueue) {
+      try {
+        await emailQueue.add('send-payout', {
+          type: 'payout',
+          to: payment.user.email,
+          data: {
+            name: payment.user.firstName || 'User',
+            amount: amount,
+            circleId: circleId,
+          },
+        }, {
+          jobId: `payout-${circleId}-${userId}-${cycleNumber}-${Date.now()}`,
+        });
+        logger.info('Payout email queued', { circleId, userId, email: payment.user.email });
+      } catch (error) {
+        logger.error('Failed to queue payout email', { error: error.message });
+      }
     }
 
     await createAuditLog(
-  'payments',
-  updatedPayment.id,
-  'PAYMENT_MADE',
-  { status: newStatus, amountPaid: totalPaid },
-  userId,
-  { status: payment.status, amountPaid: Number(payment.amountPaid) }
-);
+      'payments',
+      updatedPayment.id,
+      'PAYMENT_MADE',
+      { status: newStatus, amountPaid: totalPaid },
+      userId,
+      { status: payment.status, amountPaid: Number(payment.amountPaid) }
+    );
 
     logger.info('Payment made', { circleId, userId, cycleNumber, amount, status: newStatus });
     return updatedPayment;
@@ -164,22 +193,32 @@ class PaymentService {
       cycleNumber
     );
 
-    if (recipient.user.email) {
-      await emailService.sendPayoutNotification(
-        recipient.user.email,
-        recipient.user.firstName || 'User',
-        totalCollected,
-        circleId
-      );
+    if (recipient.user.email && emailQueue) {
+      try {
+        await emailQueue.add('send-payout', {
+          type: 'payout',
+          to: recipient.user.email,
+          data: {
+            name: recipient.user.firstName || 'User',
+            amount: totalCollected,
+            circleId: circleId,
+          },
+        }, {
+          jobId: `payout-bulk-${circleId}-${cycleNumber}-${Date.now()}`,
+        });
+        logger.info('Payout email queued for recipient', { circleId, cycleNumber, email: recipient.user.email });
+      } catch (error) {
+        logger.error('Failed to queue payout email for recipient', { error: error.message });
+      }
     }
-    
+
     await createAuditLog(
-  'payments',
-  circleId,
-  'PAYOUT_PROCESSED',
-  { cycleNumber, totalCollected, recipientId: recipient.userId },
-  'SYSTEM'
-);
+      'payments',
+      circleId,
+      'PAYOUT_PROCESSED',
+      { cycleNumber, totalCollected, recipientId: recipient.userId },
+      'SYSTEM'
+    );
 
     logger.info('Payout calculated', { circleId, cycleNumber, totalCollected, recipientId: recipient.userId });
 
@@ -193,4 +232,4 @@ class PaymentService {
 }
 
 const paymentService = new PaymentService();
-module.exports = { paymentService };
+module.exports = { paymentService, emailQueue };

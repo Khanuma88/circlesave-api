@@ -94,6 +94,27 @@ class EmailService {
       throw error;
     }
   }
+
+  async sendPaymentReminder(to, firstName, circleName, amount) {
+    try {
+      await resend.emails.send({
+        from: FROM_EMAIL,
+        to: getRecipient(to),
+        subject: 'CircleSave — Payment Reminder',
+        html: `
+          <h2>Hello, ${firstName}!</h2>
+          <p>This is a reminder that your payment for the savings circle <strong>${circleName}</strong> is due.</p>
+          <h2 style="color: #EF4444;">${amount} KZT</h2>
+          <p>Please make your payment as soon as possible to avoid late fees.</p>
+          <p>Thank you for being part of CircleSave!</p>
+        `,
+      });
+      logger.info('Payment reminder sent', { to, circleName, amount });
+    } catch (error) {
+      logger.error('Failed to send payment reminder', { error: error.message });
+      throw error;
+    }
+  }
 }
 
 const emailService = new EmailService();
