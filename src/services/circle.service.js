@@ -192,6 +192,7 @@ class CircleService {
         circleId,
         userId,
         positionInRotation: position,
+        status:'ACTIVE',
       },
       include: {
         user: { select: { id: true, phone: true, firstName: true } },
