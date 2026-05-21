@@ -10,7 +10,7 @@ RUN npm ci --only=production
 
 COPY . .
 
-RUN npx prisma generate
+RUN ./node_modules/.bin/prisma generate
 
 EXPOSE 3001
 
