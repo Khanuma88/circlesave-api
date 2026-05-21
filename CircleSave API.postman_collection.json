@@ -1,0 +1,1328 @@
+{
+  "info": {
+    "_postman_id": "a430157c-a568-43f2-89b1-47ca8e0f1534",
+    "name": "CircleSave API",
+    "description": "Digital ROSCA (Құты) Platform - Automated rotating savings circles",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "48768902",
+    "_collection_link": "https://go.postman.co/collection/48768902-a430157c-a568-43f2-89b1-47ca8e0f1534?source=collection_link"
+  },
+  "item": [
+    {
+      "name": "auth",
+      "item": [
+        {
+          "name": "register",
+          "item": [
+            {
+              "name": "Register new user3",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"phone\": \"+77033333333\",\n    \"email\": \"zamirovahanuma20+user3@gmail.com\",\n    \"password\": \"Pass123456!\",\n    \"firstName\": \"Aidana\",\n    \"lastName\": \"Turatbekova\"\n}",
+                  "options": {
+                    "raw": {
+                      "headerFamily": "json",
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/auth/register",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "auth",
+                    "register"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Register ORGANIZER",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"phone\": \"+77077777774\",\n    \"email\": \"zamirovahanuma20@gmail.com\",\n    \"password\": \"Pass123456!\",\n    \"firstName\": \"Khanuma\",\n    \"lastName\": \"Zamirova\"\n}"
+                },
+                "url": {
+                  "raw": "https://circlesave-api.onrender.com/v1/auth/register",
+                  "protocol": "https",
+                  "host": [
+                    "circlesave-api",
+                    "onrender",
+                    "com"
+                  ],
+                  "path": [
+                    "v1",
+                    "auth",
+                    "register"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Register new user4",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"phone\": \"+77044444444\",\n    \"email\": \"zamirovahanuma20+user4@gmail.com\",\n    \"password\": \"Pass123456!\",\n    \"firstName\": \"Adema\",\n    \"lastName\": \"Khairullakizi\"\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/auth/register",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "auth",
+                    "register"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Register new user5",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"phone\": \"+77055555555\",\n    \"email\": \"zamirovahanuma20+user5@gmail.com\",\n    \"password\": \"Pass123456!\",\n    \"firstName\": \"Mia\",\n    \"lastName\": \"Kachakhidze\"\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/auth/register",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "auth",
+                    "register"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Register ADMIN",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"phone\": \"+77011111111\",\n    \"email\": \"zamirovahanuma20+admin@gmail.com\",\n    \"password\": \"Pass123456!\",\n    \"firstName\": \"Admin\",\n    \"lastName\": \"CircleSave\"\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/auth/register",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "auth",
+                    "register"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "verify-email",
+          "item": [
+            {
+              "name": "Verify email with code",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"email\": \"zamirovahanuma20@gmail.com\",\n  \"code\": \"649579\"\n}",
+                  "options": {
+                    "raw": {
+                      "headerFamily": "json",
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/auth/verify-email",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "auth",
+                    "verify-email"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "login",
+          "item": [
+            {
+              "name": "Login ORGANIZER",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"phone\": \"+77077777774\",\n    \"password\": \"Pass123456!\"\n}",
+                  "options": {
+                    "raw": {
+                      "headerFamily": "json",
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "https://circlesave-api.onrender.com/v1/auth/login",
+                  "protocol": "https",
+                  "host": [
+                    "circlesave-api",
+                    "onrender",
+                    "com"
+                  ],
+                  "path": [
+                    "v1",
+                    "auth",
+                    "login"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Login 3 user",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"phone\": \"+77033333333\",\n  \"password\": \"Pass123456!\"\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/auth/login",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "auth",
+                    "login"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Login 4 user",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"phone\": \"+77044444444\",\n  \"password\": \"Pass123456!\"\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/auth/login",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "auth",
+                    "login"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Login 5 user",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"phone\": \"+77055555555\",\n  \"password\": \"Pass123456!\"\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/auth/login",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "auth",
+                    "login"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Login ADMIN",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"phone\": \"+77011111111\",\r\n    \"password\": \"Pass123456!\"\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/auth/login",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "auth",
+                    "login"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "forgot-password",
+          "item": [
+            {
+              "name": "Request password reset code",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"email\": \"user@example.com\"\n}",
+                  "options": {
+                    "raw": {
+                      "headerFamily": "json",
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/auth/forgot-password",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "auth",
+                    "forgot-password"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "reset-password",
+          "item": [
+            {
+              "name": "Reset password with code",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"email\": \"user@example.com\",\n  \"code\": \"123456\",\n  \"newPassword\": \"NewPass123!\"\n}",
+                  "options": {
+                    "raw": {
+                      "headerFamily": "json",
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/auth/reset-password",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "auth",
+                    "reset-password"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "refresh",
+          "item": [
+            {
+              "name": "Refresh access token",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"refreshToken\": \"string\"\n}",
+                  "options": {
+                    "raw": {
+                      "headerFamily": "json",
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/auth/refresh",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "auth",
+                    "refresh"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "logout",
+          "item": [
+            {
+              "name": "Logout",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"refreshToken\": \"string\"\n}",
+                  "options": {
+                    "raw": {
+                      "headerFamily": "json",
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/auth/logout",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "auth",
+                    "logout"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "circles",
+      "item": [
+        {
+          "name": "{circleId}",
+          "item": [
+            {
+              "name": "join",
+              "item": [
+                {
+                  "name": "Join a circle user3",
+                  "request": {
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiIzNDVhNDY1NS0zYjk3LTRmNGItOTM1MS1mMTZhZWQxZGRkNDkiLCJyb2xlIjoiTUVNQkVSIiwiaWF0IjoxNzc5MzYzMDk2LCJleHAiOjE3NzkzNjM5OTZ9.iKRGRhpxcMQGmHBDBY3PHIR8EBS-noVRa9m92EEEHGY",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "method": "POST",
+                    "header": [],
+                    "url": {
+                      "raw": "{{baseUrl}}/circles/7efb410c-d737-47d5-9f56-9a634bb47a10/join",
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "circles",
+                        "7efb410c-d737-47d5-9f56-9a634bb47a10",
+                        "join"
+                      ]
+                    }
+                  },
+                  "response": []
+                },
+                {
+                  "name": "Join a circle user4",
+                  "request": {
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI3ZjY2NjdkMi03NDgzLTQ3MTctOGJjMy04M2Q4NjIwY2UzOTQiLCJyb2xlIjoiTUVNQkVSIiwiaWF0IjoxNzc5MzYzMTA2LCJleHAiOjE3NzkzNjQwMDZ9._oxSD1rgyNkAfKVk4B2BdtWC7D9mqIcbc4OIBAsO-xQ",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "method": "POST",
+                    "header": [],
+                    "url": {
+                      "raw": "{{baseUrl}}/circles/7efb410c-d737-47d5-9f56-9a634bb47a10/join",
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "circles",
+                        "7efb410c-d737-47d5-9f56-9a634bb47a10",
+                        "join"
+                      ]
+                    }
+                  },
+                  "response": []
+                },
+                {
+                  "name": "Join a circle user5",
+                  "request": {
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJkYmI2NjA3Ni02YTJiLTRkMmEtYmMyYS01NGNjZTZiOTcwY2EiLCJyb2xlIjoiTUVNQkVSIiwiaWF0IjoxNzc5MzYzMTE3LCJleHAiOjE3NzkzNjQwMTd9.s6YUeFfO-bfm12vNSs2U1cvBf3BLX_EbEX2LSJBTwzY",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "method": "POST",
+                    "header": [],
+                    "url": {
+                      "raw": "{{baseUrl}}/circles/7efb410c-d737-47d5-9f56-9a634bb47a10/join",
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "circles",
+                        "7efb410c-d737-47d5-9f56-9a634bb47a10",
+                        "join"
+                      ]
+                    }
+                  },
+                  "response": []
+                }
+              ]
+            },
+            {
+              "name": "payments",
+              "item": [
+                {
+                  "name": "schedule",
+                  "item": [
+                    {
+                      "name": "Create payment schedule (ORGANIZER only)",
+                      "request": {
+                        "auth": {
+                          "type": "bearer",
+                          "bearer": [
+                            {
+                              "key": "token",
+                              "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI3NTBhNGRmMy00ZjM3LTQwMTktYTIyMC1kMzMwZjBhYTJmZWIiLCJyb2xlIjoiT1JHQU5JWkVSIiwiaWF0IjoxNzc5MzA4MTI1LCJleHAiOjE3NzkzMDkwMjV9.PE1lUK_QN7HyUQrF9Vr0BO-nrHVqO1lhClYEYb-eZ_E",
+                              "type": "string"
+                            }
+                          ]
+                        },
+                        "method": "POST",
+                        "header": [],
+                        "url": {
+                          "raw": "{{baseUrl}}/circles/7512bc6a-223b-4323-ab50-4bc1a3dfb0c1/payments/schedule",
+                          "host": [
+                            "{{baseUrl}}"
+                          ],
+                          "path": [
+                            "circles",
+                            "7512bc6a-223b-4323-ab50-4bc1a3dfb0c1",
+                            "payments",
+                            "schedule"
+                          ]
+                        }
+                      },
+                      "response": []
+                    }
+                  ]
+                },
+                {
+                  "name": "pay",
+                  "item": [
+                    {
+                      "name": "Make a payment user3",
+                      "request": {
+                        "auth": {
+                          "type": "bearer",
+                          "bearer": [
+                            {
+                              "key": "token",
+                              "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiIzNDVhNDY1NS0zYjk3LTRmNGItOTM1MS1mMTZhZWQxZGRkNDkiLCJyb2xlIjoiTUVNQkVSIiwiaWF0IjoxNzc5MzYzNDA5LCJleHAiOjE3NzkzNjQzMDl9.z3xw26XIWhJFLRc1aYYffZroCbWeoZOCUx3NQPfnA30",
+                              "type": "string"
+                            }
+                          ]
+                        },
+                        "method": "POST",
+                        "header": [
+                          {
+                            "key": "Content-Type",
+                            "value": "application/json"
+                          }
+                        ],
+                        "body": {
+                          "mode": "raw",
+                          "raw": "{\n  \"cycleNumber\": 1,\n  \"amount\": 10000\n}",
+                          "options": {
+                            "raw": {
+                              "headerFamily": "json",
+                              "language": "json"
+                            }
+                          }
+                        },
+                        "url": {
+                          "raw": "{{baseUrl}}/circles/7efb410c-d737-47d5-9f56-9a634bb47a10/payments/pay",
+                          "host": [
+                            "{{baseUrl}}"
+                          ],
+                          "path": [
+                            "circles",
+                            "7efb410c-d737-47d5-9f56-9a634bb47a10",
+                            "payments",
+                            "pay"
+                          ]
+                        }
+                      },
+                      "response": []
+                    },
+                    {
+                      "name": "Make a payment user4",
+                      "request": {
+                        "auth": {
+                          "type": "bearer",
+                          "bearer": [
+                            {
+                              "key": "token",
+                              "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI3ZjY2NjdkMi03NDgzLTQ3MTctOGJjMy04M2Q4NjIwY2UzOTQiLCJyb2xlIjoiTUVNQkVSIiwiaWF0IjoxNzc5MzYzNDMyLCJleHAiOjE3NzkzNjQzMzJ9.uIoXGMr2qLy-LvDD8E4rTFX-GpZKSXUCLDQFbJwvcKo",
+                              "type": "string"
+                            }
+                          ]
+                        },
+                        "method": "POST",
+                        "header": [],
+                        "body": {
+                          "mode": "raw",
+                          "raw": "{\r\n    \"cycleNumber\": 1,\r\n    \"amount\": 10000\r\n}",
+                          "options": {
+                            "raw": {
+                              "language": "json"
+                            }
+                          }
+                        },
+                        "url": {
+                          "raw": "{{baseUrl}}/circles/7efb410c-d737-47d5-9f56-9a634bb47a10/payments/pay",
+                          "host": [
+                            "{{baseUrl}}"
+                          ],
+                          "path": [
+                            "circles",
+                            "7efb410c-d737-47d5-9f56-9a634bb47a10",
+                            "payments",
+                            "pay"
+                          ]
+                        }
+                      },
+                      "response": []
+                    },
+                    {
+                      "name": "Make a payment user5",
+                      "request": {
+                        "auth": {
+                          "type": "bearer",
+                          "bearer": [
+                            {
+                              "key": "token",
+                              "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJkYmI2NjA3Ni02YTJiLTRkMmEtYmMyYS01NGNjZTZiOTcwY2EiLCJyb2xlIjoiTUVNQkVSIiwiaWF0IjoxNzc5MzYzNDUxLCJleHAiOjE3NzkzNjQzNTF9.kyzLwYXlsT7LbCPKUK8JQxKF0Z6WjbrNIl91Byz-0U8",
+                              "type": "string"
+                            }
+                          ]
+                        },
+                        "method": "POST",
+                        "header": [],
+                        "body": {
+                          "mode": "raw",
+                          "raw": "{\r\n    \"cycleNumber\": 1,\r\n    \"amount\": 10000\r\n}",
+                          "options": {
+                            "raw": {
+                              "language": "json"
+                            }
+                          }
+                        },
+                        "url": {
+                          "raw": "{{baseUrl}}/circles/7efb410c-d737-47d5-9f56-9a634bb47a10/payments/pay",
+                          "host": [
+                            "{{baseUrl}}"
+                          ],
+                          "path": [
+                            "circles",
+                            "7efb410c-d737-47d5-9f56-9a634bb47a10",
+                            "payments",
+                            "pay"
+                          ]
+                        }
+                      },
+                      "response": []
+                    }
+                  ]
+                },
+                {
+                  "name": "payout",
+                  "item": [
+                    {
+                      "name": "Calculate and process payout (ORGANIZER only)",
+                      "request": {
+                        "auth": {
+                          "type": "bearer",
+                          "bearer": [
+                            {
+                              "key": "token",
+                              "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI4ZWVlODllYi1hN2QzLTRjYWYtOGM5Mi1kZjhjYTM5NTNkMDQiLCJyb2xlIjoiT1JHQU5JWkVSIiwiaWF0IjoxNzc5MzYzMzEyLCJleHAiOjE3NzkzNjQyMTJ9.yL9hWm9Ns5nQ2s8IlJJERTWTzqB3MU70aZGMmuXywEw",
+                              "type": "string"
+                            }
+                          ]
+                        },
+                        "method": "POST",
+                        "header": [
+                          {
+                            "key": "Content-Type",
+                            "value": "application/json"
+                          }
+                        ],
+                        "body": {
+                          "mode": "raw",
+                          "raw": "{\n  \"cycleNumber\": 1\n}",
+                          "options": {
+                            "raw": {
+                              "headerFamily": "json",
+                              "language": "json"
+                            }
+                          }
+                        },
+                        "url": {
+                          "raw": "{{baseUrl}}/circles/7efb410c-d737-47d5-9f56-9a634bb47a10/payments/payout",
+                          "host": [
+                            "{{baseUrl}}"
+                          ],
+                          "path": [
+                            "circles",
+                            "7efb410c-d737-47d5-9f56-9a634bb47a10",
+                            "payments",
+                            "payout"
+                          ]
+                        }
+                      },
+                      "response": []
+                    }
+                  ]
+                },
+                {
+                  "name": "Get my payment schedule",
+                  "request": {
+                    "method": "GET",
+                    "header": [],
+                    "url": {
+                      "raw": "{{baseUrl}}/circles/:circleId/payments",
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "circles",
+                        ":circleId",
+                        "payments"
+                      ],
+                      "variable": [
+                        {
+                          "key": "circleId",
+                          "value": "string"
+                        }
+                      ]
+                    }
+                  },
+                  "response": []
+                }
+              ]
+            },
+            {
+              "name": "ledger",
+              "item": [
+                {
+                  "name": "Get immutable ledger entries",
+                  "request": {
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI4ZWVlODllYi1hN2QzLTRjYWYtOGM5Mi1kZjhjYTM5NTNkMDQiLCJyb2xlIjoiT1JHQU5JWkVSIiwiaWF0IjoxNzc5MzYzMzEyLCJleHAiOjE3NzkzNjQyMTJ9.yL9hWm9Ns5nQ2s8IlJJERTWTzqB3MU70aZGMmuXywEw",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "method": "GET",
+                    "header": [],
+                    "url": {
+                      "raw": "{{baseUrl}}/circles/7efb410c-d737-47d5-9f56-9a634bb47a10/ledger",
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "circles",
+                        "7efb410c-d737-47d5-9f56-9a634bb47a10",
+                        "ledger"
+                      ]
+                    }
+                  },
+                  "response": []
+                }
+              ]
+            },
+            {
+              "name": "balance",
+              "item": [
+                {
+                  "name": "Get circle balance",
+                  "request": {
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI4ZWVlODllYi1hN2QzLTRjYWYtOGM5Mi1kZjhjYTM5NTNkMDQiLCJyb2xlIjoiT1JHQU5JWkVSIiwiaWF0IjoxNzc5MzYzMzEyLCJleHAiOjE3NzkzNjQyMTJ9.yL9hWm9Ns5nQ2s8IlJJERTWTzqB3MU70aZGMmuXywEw",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "method": "GET",
+                    "header": [],
+                    "url": {
+                      "raw": "{{baseUrl}}/circles/7efb410c-d737-47d5-9f56-9a634bb47a10/balance",
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "circles",
+                        "7efb410c-d737-47d5-9f56-9a634bb47a10",
+                        "balance"
+                      ]
+                    }
+                  },
+                  "response": []
+                }
+              ]
+            },
+            {
+              "name": "Get circle details",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/circles/:circleId",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "circles",
+                    ":circleId"
+                  ],
+                  "variable": [
+                    {
+                      "key": "circleId",
+                      "value": "string"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "List circles with cursor pagination",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/circles?cursor=string&limit=20&status=RUNNING",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "circles"
+              ],
+              "query": [
+                {
+                  "key": "cursor",
+                  "value": "string"
+                },
+                {
+                  "key": "limit",
+                  "value": "20"
+                },
+                {
+                  "key": "status",
+                  "value": "RUNNING"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create new circle (ORGANIZER only)",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI4ZWVlODllYi1hN2QzLTRjYWYtOGM5Mi1kZjhjYTM5NTNkMDQiLCJyb2xlIjoiT1JHQU5JWkVSIiwiaWF0IjoxNzc5MzYyOTY3LCJleHAiOjE3NzkzNjM4Njd9.K5NSORkmMGbigvvDK4J_gL_LRDfnUc8GywjEvCB2KTQ",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Friends uni Circle\",\n  \"contributionAmount\": 10000,\n  \"memberCount\": 3,\n  \"startDate\": \"2026-09-01T00:00:00.000Z\",\n  \"cycleLengthDays\": 30\n}",
+              "options": {
+                "raw": {
+                  "headerFamily": "json",
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/circles",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "circles"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "admin",
+      "item": [
+        {
+          "name": "dashboard",
+          "item": [
+            {
+              "name": "Get platform dashboard stats",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJlZWVmOGRlMi0xNDE2LTQzNDItYTdjNi1iYjNlZDgwMjNiNTYiLCJyb2xlIjoiQURNSU4iLCJpYXQiOjE3NzkzMDk2OTMsImV4cCI6MTc3OTMxMDU5M30.NqdHKONt_rNQMfNIJiLpuA4XlGqnKDQO7HII4qSeuyg",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/admin/dashboard",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "admin",
+                    "dashboard"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "/admin/audit-logs",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJlZWVmOGRlMi0xNDE2LTQzNDItYTdjNi1iYjNlZDgwMjNiNTYiLCJyb2xlIjoiQURNSU4iLCJpYXQiOjE3NzkzMDk2OTMsImV4cCI6MTc3OTMxMDU5M30.NqdHKONt_rNQMfNIJiLpuA4XlGqnKDQO7HII4qSeuyg",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/admin/audit-logs",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "admin",
+                    "audit-logs"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "users",
+          "item": [
+            {
+              "name": "{userId}",
+              "item": [
+                {
+                  "name": "role",
+                  "item": [
+                    {
+                      "name": "Update user role",
+                      "request": {
+                        "auth": {
+                          "type": "bearer",
+                          "bearer": [
+                            {
+                              "key": "token",
+                              "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJlZWVmOGRlMi0xNDE2LTQzNDItYTdjNi1iYjNlZDgwMjNiNTYiLCJyb2xlIjoiQURNSU4iLCJpYXQiOjE3NzkzMDk2OTMsImV4cCI6MTc3OTMxMDU5M30.NqdHKONt_rNQMfNIJiLpuA4XlGqnKDQO7HII4qSeuyg",
+                              "type": "string"
+                            }
+                          ]
+                        },
+                        "method": "PATCH",
+                        "header": [
+                          {
+                            "key": "Content-Type",
+                            "value": "application/json"
+                          }
+                        ],
+                        "body": {
+                          "mode": "raw",
+                          "raw": "{\n  \"role\": \"ORGANIZER\"\n}",
+                          "options": {
+                            "raw": {
+                              "headerFamily": "json",
+                              "language": "json"
+                            }
+                          }
+                        },
+                        "url": {
+                          "raw": "{{baseUrl}}/admin/users/7d6a3a1f-8233-4cbc-bfc9-d683e0da570d/role",
+                          "host": [
+                            "{{baseUrl}}"
+                          ],
+                          "path": [
+                            "admin",
+                            "users",
+                            "7d6a3a1f-8233-4cbc-bfc9-d683e0da570d",
+                            "role"
+                          ]
+                        }
+                      },
+                      "response": []
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "name": "Get all users",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJlZWVmOGRlMi0xNDE2LTQzNDItYTdjNi1iYjNlZDgwMjNiNTYiLCJyb2xlIjoiQURNSU4iLCJpYXQiOjE3NzkzMDk2OTMsImV4cCI6MTc3OTMxMDU5M30.NqdHKONt_rNQMfNIJiLpuA4XlGqnKDQO7HII4qSeuyg",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/admin/users",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "admin",
+                    "users"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "circles",
+          "item": [
+            {
+              "name": "{circleId}",
+              "item": [
+                {
+                  "name": "freeze",
+                  "item": [
+                    {
+                      "name": "Freeze a circle",
+                      "request": {
+                        "auth": {
+                          "type": "bearer",
+                          "bearer": [
+                            {
+                              "key": "token",
+                              "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJlZWVmOGRlMi0xNDE2LTQzNDItYTdjNi1iYjNlZDgwMjNiNTYiLCJyb2xlIjoiQURNSU4iLCJpYXQiOjE3NzkzMDk2OTMsImV4cCI6MTc3OTMxMDU5M30.NqdHKONt_rNQMfNIJiLpuA4XlGqnKDQO7HII4qSeuyg",
+                              "type": "string"
+                            }
+                          ]
+                        },
+                        "method": "PATCH",
+                        "header": [],
+                        "url": {
+                          "raw": "{{baseUrl}}/admin/circles/7512bc6a-223b-4323-ab50-4bc1a3dfb0c1/unfreeze",
+                          "host": [
+                            "{{baseUrl}}"
+                          ],
+                          "path": [
+                            "admin",
+                            "circles",
+                            "7512bc6a-223b-4323-ab50-4bc1a3dfb0c1",
+                            "unfreeze"
+                          ]
+                        }
+                      },
+                      "response": []
+                    }
+                  ]
+                },
+                {
+                  "name": "unfreeze",
+                  "item": [
+                    {
+                      "name": "Unfreeze a circle",
+                      "request": {
+                        "auth": {
+                          "type": "bearer",
+                          "bearer": [
+                            {
+                              "key": "token",
+                              "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJlZWVmOGRlMi0xNDE2LTQzNDItYTdjNi1iYjNlZDgwMjNiNTYiLCJyb2xlIjoiQURNSU4iLCJpYXQiOjE3NzkzMDk2OTMsImV4cCI6MTc3OTMxMDU5M30.NqdHKONt_rNQMfNIJiLpuA4XlGqnKDQO7HII4qSeuyg",
+                              "type": "string"
+                            }
+                          ]
+                        },
+                        "method": "PATCH",
+                        "header": [],
+                        "url": {
+                          "raw": "{{baseUrl}}/admin/circles/7512bc6a-223b-4323-ab50-4bc1a3dfb0c1/unfreeze",
+                          "host": [
+                            "{{baseUrl}}"
+                          ],
+                          "path": [
+                            "admin",
+                            "circles",
+                            "7512bc6a-223b-4323-ab50-4bc1a3dfb0c1",
+                            "unfreeze"
+                          ]
+                        }
+                      },
+                      "response": []
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "name": "Get all circles",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJlZWVmOGRlMi0xNDE2LTQzNDItYTdjNi1iYjNlZDgwMjNiNTYiLCJyb2xlIjoiQURNSU4iLCJpYXQiOjE3NzkzMDk2OTMsImV4cCI6MTc3OTMxMDU5M30.NqdHKONt_rNQMfNIJiLpuA4XlGqnKDQO7HII4qSeuyg",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/admin/circles",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "admin",
+                    "circles"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "ledger",
+          "item": [
+            {
+              "name": "Get all ledger entries",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJlZWVmOGRlMi0xNDE2LTQzNDItYTdjNi1iYjNlZDgwMjNiNTYiLCJyb2xlIjoiQURNSU4iLCJpYXQiOjE3NzkzMDk2OTMsImV4cCI6MTc3OTMxMDU5M30.NqdHKONt_rNQMfNIJiLpuA4XlGqnKDQO7HII4qSeuyg",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/admin/ledger",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "admin",
+                    "ledger"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{bearerToken}}",
+        "type": "string"
+      }
+    ]
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3001/v1"
+    }
+  ]
+}
