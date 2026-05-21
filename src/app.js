@@ -10,7 +10,9 @@ const { env } = require('./config/env');
 
 const app = express();
 
-app.use(helmet());
+app.use(helmet({
+  contentSecurityPolicy: false,
+}));
 app.use(cors({ origin: env.NODE_ENV === 'production' ? env.CORS_ORIGIN : true, credentials: true }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
