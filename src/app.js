@@ -15,6 +15,9 @@ app.use(cors({ origin: env.NODE_ENV === 'production' ? env.CORS_ORIGIN : true, c
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+const path = require('path');
+app.use(express.static(path.join(__dirname, '../frontend')));
+
 const swaggerDocument = YAML.load(path.join(__dirname, '../openapi.yaml'));
 app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
