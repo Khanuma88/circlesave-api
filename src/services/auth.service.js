@@ -1,20 +1,10 @@
 const { prisma } = require('../config/database');
 const { redis } = require('../config/redis');
-const { Queue } = require('bullmq');
 const { hashPassword, comparePassword, generateAccessToken, generateRefreshToken, verifyRefreshToken } = require('../utils/crypto');
 const { logger } = require('../config/logger');
+const { emailService } = require('./email.service');
 
 const REFRESH_TOKEN_PREFIX = 'refresh:';
-
-const emailQueue = new Queue('emails', {
-  connection: redis,
-  defaultJobOptions: {
-    attempts: 3,
-    backoff: { type: 'exponential', delay: 2000 },
-    removeOnComplete: 100,
-    removeOnFail: 500,
-  },
-});
 
 const generateCode = () => {
   return Math.floor(100000 + Math.random() * 900000).toString();
@@ -69,11 +59,12 @@ class AuthService {
       },
     });
 
-    await emailQueue.add('send-verification', {
-      type: 'verification',
-      to: dto.email,
-      data: { name: dto.firstName || 'User', code: verificationCode },
-    });
+    try {
+      await emailService.sendVerificationEmail(dto.email, dto.firstName || 'User', verificationCode);
+      logger.info('Verification email sent', { userId: user.id });
+    } catch (emailError) {
+      logger.error('Failed to send verification email', { error: emailError.message });
+    }
 
     logger.info('User registered', { userId: user.id });
     return user;
@@ -145,12 +136,12 @@ class AuthService {
       throw error;
     }
 
-    // if (!user.verifiedEmail) {
-    //   const error = new Error('Please verify your email first');
-    //   error.status = 403;
-    //   error.code = 'EMAIL_NOT_VERIFIED';
-    //   throw error;
-    // }
+    if (!user.verifiedEmail) {
+      const error = new Error('Please verify your email first');
+      error.status = 403;
+      error.code = 'EMAIL_NOT_VERIFIED';
+      throw error;
+    }
 
     const accessToken = generateAccessToken({ userId: user.id, role: user.role });
     const refreshToken = generateRefreshToken({ userId: user.id });
@@ -195,11 +186,12 @@ class AuthService {
       },
     });
 
-    await emailQueue.add('send-password-reset', {
-      type: 'password_reset',
-      to: dto.email,
-      data: { name: user.firstName || 'User', code: resetCode },
-    });
+    try {
+      await emailService.sendPasswordResetEmail(dto.email, user.firstName || 'User', resetCode);
+      logger.info('Password reset email sent', { userId: user.id });
+    } catch (emailError) {
+      logger.error('Failed to send password reset email', { error: emailError.message });
+    }
 
     logger.info('Password reset requested', { userId: user.id });
     return { message: 'If email exists, reset code will be sent' };
@@ -282,4 +274,4 @@ class AuthService {
 }
 
 const authService = new AuthService();
-module.exports = { authService, emailQueue };
+module.exports = { authService };
