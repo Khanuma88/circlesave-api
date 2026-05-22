@@ -145,12 +145,12 @@ class AuthService {
       throw error;
     }
 
-    if (!user.verifiedEmail) {
-      const error = new Error('Please verify your email first');
-      error.status = 403;
-      error.code = 'EMAIL_NOT_VERIFIED';
-      throw error;
-    }
+    // if (!user.verifiedEmail) {
+    //   const error = new Error('Please verify your email first');
+    //   error.status = 403;
+    //   error.code = 'EMAIL_NOT_VERIFIED';
+    //   throw error;
+    // }
 
     const accessToken = generateAccessToken({ userId: user.id, role: user.role });
     const refreshToken = generateRefreshToken({ userId: user.id });
